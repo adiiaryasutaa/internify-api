@@ -1,13 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Review;
 
 use App\Actions\Review\Contracts\DeletesReviews;
+use App\Models\Review;
 
-class DeleteReview implements DeletesReviews
+final class DeleteReview implements DeletesReviews
 {
-    public function delete()
+    public function delete(Review $review): bool
     {
-        // TODO: delete
+        return $review->delete();
     }
 }

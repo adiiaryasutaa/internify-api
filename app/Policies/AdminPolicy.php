@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
 use App\Models\Admin;
 use App\Models\User;
 
-class AdminPolicy
+final class AdminPolicy
 {
     /**
      * Determine whether the user can view any models.
@@ -20,7 +22,7 @@ class AdminPolicy
      */
     public function view(User $user, Admin $admin): bool
     {
-        return $user->role->iaAdmin();
+        return $user->role->isAdmin();
     }
 
     /**

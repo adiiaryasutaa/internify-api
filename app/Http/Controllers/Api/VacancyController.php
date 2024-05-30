@@ -1,67 +1,86 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
+use App\Actions\Vacancy\Contracts\CreatesVacancies;
+use App\Actions\Vacancy\Contracts\DeletesVacancies;
+use App\Actions\Vacancy\Contracts\UpdatesVacancies;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreVacancyRequest;
 use App\Http\Requests\Api\UpdateVacancyRequest;
+use App\Http\Resources\VacancyCollection;
+use App\Http\Resources\VacancyResource;
+use App\Models\Company;
 use App\Models\Vacancy;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Gate;
+use Throwable;
 
-class VacancyController extends Controller
+final class VacancyController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request): VacancyCollection
     {
-        return inertia('Vacancy/Index');
+        Gate::authorize('viewAny', Vacancy::class);
+
+        $perPage = $request->integer('per-page', null);
+
+        return VacancyCollection::make(
+            Vacancy::paginate($perPage),
+        );
+    }
+
+    public function store(CreatesVacancies $creator, StoreVacancyRequest $request): JsonResponse
+    {
+        Gate::authorize('create', Vacancy::class);
+
+        $request = $request->validated();
+
+        $company = Company::whereSlug(Arr::pull($request, 'company'))->firstOrFail(['id', 'slug']);
+
+        $creator->create($company, $request);
+
+        return response()->json([
+            'message' => __('response.vacancy.create.success'),
+        ]);
+    }
+
+    public function show(Vacancy $vacancy): VacancyResource
+    {
+        Gate::authorize('view', $vacancy);
+
+        return VacancyResource::make($vacancy);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * @throws Throwable
      */
-    public function create()
+    public function update(UpdatesVacancies $updater, UpdateVacancyRequest $request, Vacancy $vacancy): JsonResponse
     {
-        return inertia('Vacancy/Create');
+        Gate::authorize('update', $vacancy);
+
+        throw_unless($updater->update($vacancy, $request->validated()));
+
+        return response()->json([
+            'message' => __('response.vacancy.update.success'),
+        ]);
+
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @throws Throwable
      */
-    public function store(StoreVacancyRequest $request)
+    public function destroy(DeletesVacancies $deleter, Vacancy $vacancy): JsonResponse
     {
-        //
-    }
+        Gate::authorize('delete', $vacancy);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Vacancy $vacancy)
-    {
-        return inertia('Vacancy/Show');
-    }
+        throw_unless($deleter->delete($vacancy));
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Vacancy $vacancy)
-    {
-        return inertia('Vacancy/Edit');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateVacancyRequest $request, Vacancy $vacancy)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Vacancy $vacancy)
-    {
-        //
+        return response()->json([
+            'message' => __('response.vacancy.delete.success'),
+        ]);
     }
 }

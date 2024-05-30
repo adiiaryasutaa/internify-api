@@ -1,6 +1,8 @@
 <?php
 
-namespace Api\Auth;
+declare(strict_types=1);
+
+namespace Tests\Feature\Api\Auth;
 
 use App\Models\Admin;
 use App\Models\User;
@@ -8,11 +10,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-class LoginTest extends TestCase
+final class LoginTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase;
+    use WithFaker;
 
-    public function test_login()
+    public function test_login(): void
     {
         $user = User::factory()
             ->asAdmin()
@@ -29,7 +32,7 @@ class LoginTest extends TestCase
         $response->assertJsonStructure(['message', 'access_token', 'token_type']);
     }
 
-    public function test_login_failed()
+    public function test_login_failed(): void
     {
         $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'wrong@email.com',

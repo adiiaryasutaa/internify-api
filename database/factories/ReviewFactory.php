@@ -1,23 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
+use App\Actions\Review\Contracts\GeneratesReviewsSlugs;
+use App\Models\Review;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Review>
- */
-class ReviewFactory extends Factory
+/** @extends Factory<Review> */
+final class ReviewFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
-            //
+            'summary' => $this->faker->text(30),
+            'description' => $this->faker->paragraphs(5, true),
         ];
+    }
+
+    public function withSlug(): self
+    {
+        return $this->state(['slug' => app(GeneratesReviewsSlugs::class)->generate()]);
     }
 }

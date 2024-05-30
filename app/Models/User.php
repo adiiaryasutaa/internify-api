@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Enums\Role;
@@ -13,9 +15,8 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class User extends Authenticatable implements HasMedia
+final class User extends Authenticatable implements HasMedia
 {
     use CastTimestampsToDatetime;
     use HasApiTokens;
@@ -42,6 +43,18 @@ class User extends Authenticatable implements HasMedia
         'password',
     ];
 
+    public function userable(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this
+            ->addMediaCollection('avatar')
+            ->singleFile();
+    }
+
     protected function casts(): array
     {
         return array_merge(parent::casts(), [
@@ -53,26 +66,8 @@ class User extends Authenticatable implements HasMedia
 
     protected function avatar(): Attribute
     {
-        return Attribute::get(fn() => $this
-            ->getFirstMediaUrl('avatar'),
+        return Attribute::get(
+            fn() => $this->getFirstMediaUrl('avatar'),
         );
-    }
-
-    public function userable(): MorphTo
-    {
-        return $this->morphTo();
-    }
-
-    public function registerMediaCollections(): void
-    {
-        $this
-            ->addMediaCollection('avatar')
-            ->singleFile()
-            ->registerMediaConversions(function (Media $media) {
-                $this
-                    ->addMediaConversion('thumb')
-                    ->width(50)
-                    ->height(50);
-            });
     }
 }

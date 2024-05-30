@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Actions\Admin\Contracts\CreatesAdmins;
@@ -14,15 +16,16 @@ use App\Models\Admin;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Throwable;
 
-class AdminController extends Controller
+final class AdminController extends Controller
 {
     public function index(Request $request): AdminCollection
     {
         Gate::authorize('viewAny', Admin::class);
 
         return AdminCollection::make(Admin::paginate(
-            perPage: $request->integer('per-page', null)
+            perPage: $request->integer('per-page', null),
         ));
     }
 
@@ -44,22 +47,28 @@ class AdminController extends Controller
         return AdminResource::make($admin);
     }
 
+    /**
+     * @throws Throwable
+     */
     public function update(UpdatesAdmins $updater, UpdateAdminRequest $request, Admin $admin): JsonResponse
     {
         Gate::authorize('update', $admin);
 
-        $updater->update($admin, $request->validated());
+        throw_unless($updater->update($admin, $request->validated()));
 
         return response()->json([
             'message' => __('response.admin.update.success'),
         ]);
     }
 
+    /**
+     * @throws Throwable
+     */
     public function destroy(DeletesAdmins $deleter, Admin $admin): JsonResponse
     {
         Gate::authorize('delete', $admin);
 
-        $deleter->delete($admin);
+        throw_unless($deleter->delete($admin));
 
         return response()->json([
             'message' => __('response.admin.delete.success'),

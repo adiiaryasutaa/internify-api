@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Api\Auth;
 
 use App\Enums\Role;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
 
-class StoreUserRequest extends FormRequest
+final class StoreUserRequest extends FormRequest
 {
     public function authorize(): bool
     {

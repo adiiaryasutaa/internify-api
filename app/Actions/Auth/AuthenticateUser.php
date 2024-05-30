@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Auth;
 
 use App\Actions\Auth\Contracts\AuthenticatesUsers;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-class AuthenticateUser implements AuthenticatesUsers
+final class AuthenticateUser implements AuthenticatesUsers
 {
     public function authenticate(User|array $credentials): array|false
     {
@@ -20,14 +22,14 @@ class AuthenticateUser implements AuthenticatesUsers
                     ->whereUsername($credentials['email'])
                     ->first(['id', 'password']);
 
-            if (! $user) {
+            if ( ! $user) {
                 return false;
             }
         }
 
         $user = $user->setVisible(['password']);
 
-        if (! Hash::check($credentials['password'], $user->password)) {
+        if ( ! Hash::check($credentials['password'], $user->password)) {
             return false;
         }
 

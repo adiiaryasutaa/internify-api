@@ -1,13 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Review;
 
 use App\Actions\Review\Contracts\UpdatesReviews;
+use App\Models\Review;
+use Illuminate\Support\Arr;
 
-class UpdateReview implements UpdatesReviews
+final class UpdateReview implements UpdatesReviews
 {
-    public function update(array $inputs)
+    private array $fills;
+
+    public function __construct(Review $review)
     {
-        // TODO: update
+        $this->fills = Arr::except($review->getFillable(), ['apprentice_id', 'company_id']);
+    }
+
+    public function update(Review $review, array $inputs): bool
+    {
+        $data = Arr::only($inputs, $this->fills);
+
+        return $review->update($data);
     }
 }

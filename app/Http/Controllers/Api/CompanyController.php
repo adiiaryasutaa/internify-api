@@ -1,67 +1,83 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
+use App\Actions\Company\Contracts\CreatesCompanies;
+use App\Actions\Company\Contracts\DeletesCompanies;
+use App\Actions\Company\Contracts\UpdatesCompanies;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreCompanyRequest;
 use App\Http\Requests\Api\UpdateCompanyRequest;
+use App\Http\Resources\CompanyCollection;
+use App\Http\Resources\CompanyResource;
 use App\Models\Company;
+use App\Models\Employer;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Gate;
+use Throwable;
 
-class CompanyController extends Controller
+final class CompanyController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request): CompanyCollection
     {
-        return inertia('Company/Index');
+        Gate::authorize('viewAny', Company::class);
+
+        return CompanyCollection::make(Company::paginate(
+            perPage: $request->integer('per-page', null),
+        ));
+    }
+
+    public function store(CreatesCompanies $creator, StoreCompanyRequest $request): JsonResponse
+    {
+        Gate::authorize('create', Company::class);
+
+        $request = $request->validated();
+
+        $employer = Employer::whereSlug(Arr::pull($request, 'employer'))->firstOrFail(['id', 'slug']);
+
+        $creator->create($employer, $request);
+
+        return response()->json([
+            'message' => __('response.company.create.success'),
+        ]);
+    }
+
+    public function show(Company $company): CompanyResource
+    {
+        Gate::authorize('view', $company);
+
+        return CompanyResource::make($company);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * @throws Throwable
      */
-    public function create()
+    public function update(UpdatesCompanies $updater, UpdateCompanyRequest $request, Company $company): JsonResponse
     {
-        return inertia('Company/Create');
+        Gate::authorize('update', $company);
+
+        throw_unless($updater->update($company, $request->validated()));
+
+        return response()->json([
+            'message' => __('response.company.update.success'),
+        ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @throws Throwable
      */
-    public function store(StoreCompanyRequest $request)
+    public function destroy(DeletesCompanies $deleter, Company $company): JsonResponse
     {
-        //
-    }
+        Gate::authorize('delete', $company);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Company $company)
-    {
-        return inertia('Company/Show');
-    }
+        throw_unless($deleter->delete($company));
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Company $company)
-    {
-        return inertia('Company/Edit');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateCompanyRequest $request, Company $company)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Company $company)
-    {
-        //
+        return response()->json([
+            'message' => __('response.company.delete.success'),
+        ]);
     }
 }

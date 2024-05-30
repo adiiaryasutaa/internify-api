@@ -1,13 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Apprentice;
 
 use App\Actions\Apprentice\Contracts\DeletesApprentices;
+use App\Actions\User\Contracts\DeletesUsers;
+use App\Models\Apprentice;
 
-class DeleteApprentice implements DeletesApprentices
+final class DeleteApprentice implements DeletesApprentices
 {
-    public function delete()
+    public function __construct(protected DeletesUsers $userDeleter) {}
+
+    public function delete(Apprentice $apprentice): bool
     {
-        // TODO: delete
+        return $apprentice->delete() && $this->userDeleter->delete($apprentice->user);
     }
 }

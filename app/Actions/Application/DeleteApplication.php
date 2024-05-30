@@ -1,13 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Application;
 
 use App\Actions\Application\Contracts\DeletesApplications;
+use App\Models\Application;
 
-class DeleteApplication implements DeletesApplications
+final class DeleteApplication implements DeletesApplications
 {
-    public function delete()
+    public function delete(Application $application): bool
     {
-        // TODO: delete
+        return $application->delete();
     }
 }

@@ -1,10 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Exceptions;
 
 use Exception;
 
-class CreateAdminWithoutUserException extends Exception
-{
-    //
-}
+final class CreateAdminWithoutUserException extends Exception {}

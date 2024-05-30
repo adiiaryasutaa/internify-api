@@ -1,16 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
+use App\Models\Employer;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
-class EmployerSeeder extends Seeder
+final class EmployerSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        //
+        Employer::factory()
+            ->has(User::factory()->asEmployer(), 'user')
+            ->count(20)
+            ->create();
     }
 }

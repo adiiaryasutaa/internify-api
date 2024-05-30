@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Api;
 
 use App\Models\Employer;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreEmployerRequest extends FormRequest
+final class StoreEmployerRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -15,13 +17,11 @@ class StoreEmployerRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user' => [
-                'name' => ['required', 'string', 'max:255'],
-                'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-                'username' => ['required', 'string', 'max:20', 'unique:users,username'],
-                'password' => ['required', 'string', 'min:8'],
-                'photo' => ['nullable', 'image', 'mimes:jpeg,jpg,png', 'max:2048'],
-            ],
+            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'username' => ['required', 'string', 'max:20', 'unique:users,username'],
+            'password' => ['required', 'string', 'min:8'],
         ];
     }
 }

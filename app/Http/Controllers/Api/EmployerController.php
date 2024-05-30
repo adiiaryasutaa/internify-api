@@ -1,127 +1,77 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
+use App\Actions\Employer\Contracts\CreatesEmployers;
+use App\Actions\Employer\Contracts\DeletesEmployers;
+use App\Actions\Employer\Contracts\UpdatesEmployers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreEmployerRequest;
 use App\Http\Requests\Api\UpdateEmployerRequest;
+use App\Http\Resources\EmployerCollection;
+use App\Http\Resources\EmployerResource;
 use App\Models\Employer;
-use App\Models\User;
-use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Throwable;
 
-class EmployerController extends Controller
+final class EmployerController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): EmployerCollection
     {
-        return inertia('Employer/Index', [
-            'employers' => Employer::with(['user'])->get(),
+        Gate::authorize('viewAny', Employer::class);
+
+        return EmployerCollection::make(Employer::paginate(
+            perPage: $request->integer('per-page', null),
+        ));
+    }
+
+    public function store(CreatesEmployers $creator, StoreEmployerRequest $request): JsonResponse
+    {
+        Gate::authorize('create', Employer::class);
+
+        $creator->create($request->validated());
+
+        return response()->json([
+            'message' => __('response.employer.create.success'),
+        ]);
+    }
+
+    public function show(Employer $employer): EmployerResource
+    {
+        Gate::authorize('view', $employer);
+
+        return EmployerResource::make($employer);
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function update(UpdatesEmployers $updater, UpdateEmployerRequest $request, Employer $employer): JsonResponse
+    {
+        Gate::authorize('update', $employer);
+
+        throw_unless($updater->update($employer, $request->validated()));
+
+        return response()->json([
+            'message' => __('response.employer.update.success'),
         ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * @throws Throwable
      */
-    public function create()
+    public function destroy(DeletesEmployers $deleter, Employer $employer): JsonResponse
     {
-        return inertia('Employer/Create');
-    }
+        Gate::authorize('delete', $employer);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreEmployerRequest $request)
-    {
-        $request = $request->safe();
+        throw_unless($deleter->delete($employer));
 
-        try {
-            $employer = DB::transaction(function () use ($request) {
-                $employer = Employer::create();
-
-                $user = $employer->user()->create($request->only(['name', 'email', 'username', 'password']));
-
-                tap($user, function (User $user) use ($request) {
-                    if ($request->has('photo')) {
-                        $user->updateProfilePhoto($request->photo);
-                    }
-                });
-
-                return $employer;
-            });
-
-            return redirect()
-                ->route('employer.show', compact('employer'))
-                ->with(['create.success' => __('Employer created successfully.')]);
-        } catch (Exception $e) {
-            return back()
-                ->with(['create.failed' => __('Failed to create employer. Please try again.')]);
-        }
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Employer $employer)
-    {
-        return inertia('Employer/Show', [
-            'employer' => $employer->loadMissing(['user']),
+        return response()->json([
+            'message' => __('response.employer.delete.success'),
         ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Employer $employer)
-    {
-        return inertia('Employer/Edit', [
-            'employer' => $employer->loadMissing(['user']),
-        ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateEmployerRequest $request, Employer $employer)
-    {
-        $request = $request->safe();
-
-        try {
-            DB::transaction(function () use ($request, $employer) {
-                $user = $employer->user()->update($request->only(['name', 'email', 'username', 'password']));
-
-                tap($user, function (User $user) use ($request) {
-                    if ($request->has('photo')) {
-                        $user->updateProfilePhoto($request->photo);
-                    }
-                });
-
-                return $employer;
-            });
-
-            return back()
-                ->with(['update.success' => __('Employer updated successfully.')]);
-        } catch (Exception $e) {
-            return back()
-                ->with(['update.failed' => __('Failed to update employer. Please try again.')]);
-        }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Employer $employer)
-    {
-        try {
-            DB::transaction(function () use ($employer) {
-                return $employer->delete();
-            });
-
-            return back()
-                ->with(['delete.success' => __('Employer deleted successfully.')]);
-        } catch (Exception $e) {
-            return back()
-                ->with(['delete.failed' => __('Failed to delete employer. Please try again.')]);
-        }
     }
 }

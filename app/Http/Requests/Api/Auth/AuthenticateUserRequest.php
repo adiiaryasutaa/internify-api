@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Api\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class AuthenticateUserRequest extends FormRequest
+final class AuthenticateUserRequest extends FormRequest
 {
     public function authorize(): bool
     {

@@ -1,13 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Vacancy;
 
 use App\Actions\Vacancy\Contracts\DeletesVacancies;
+use App\Models\Vacancy;
 
-class DeleteVacancy implements DeletesVacancies
+final class DeleteVacancy implements DeletesVacancies
 {
-    public function delete()
+    public function delete(Vacancy $vacancy): bool
     {
-        // TODO: delete
+        return (bool) $vacancy->delete();
     }
 }

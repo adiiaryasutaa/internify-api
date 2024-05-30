@@ -1,67 +1,86 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
+use App\Actions\Application\Contracts\CreatesApplications;
+use App\Actions\Application\Contracts\DeletesApplications;
+use App\Actions\Application\Contracts\UpdatesApplications;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreApplicationRequest;
 use App\Http\Requests\Api\UpdateApplicationRequest;
+use App\Http\Resources\ApplicationCollection;
+use App\Http\Resources\ApplicationResource;
 use App\Models\Application;
+use App\Models\Apprentice;
+use App\Models\Vacancy;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Gate;
+use Throwable;
 
-class ApplicationController extends Controller
+final class ApplicationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request): ApplicationCollection
     {
-        return inertia('Application/Index');
+        Gate::authorize('viewAny', Application::class);
+
+        return ApplicationCollection::make(Application::paginate(
+            perPage: $request->integer('per-page', null),
+        ));
+    }
+
+    public function store(CreatesApplications $creator, StoreApplicationRequest $request): JsonResponse
+    {
+        Gate::authorize('create', Application::class);
+
+        $request = $request->validated();
+
+        $apprentice = Apprentice::whereSlug(Arr::pull($request, 'apprentice'))->firstOrFail(['id', 'slug']);
+        $vacancy = Vacancy::whereSlug(Arr::pull($request, 'vacancy'))->firstOrFail(['id', 'slug']);
+
+        $creator->create($apprentice, $vacancy, $request);
+
+        return response()->json([
+            'message' => __('response.application.create.success'),
+        ]);
+    }
+
+    public function show(Application $application): ApplicationResource
+    {
+        Gate::authorize('view', $application);
+
+        return ApplicationResource::make($application);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * @throws Throwable
      */
-    public function create()
+    public function update(UpdatesApplications $updater, UpdateApplicationRequest $request, Application $application): JsonResponse
     {
-        return inertia('Application/Create');
+        Gate::authorize('update', $application);
+
+        throw_unless($updater->update($application, $request->validated()));
+
+        return response()->json([
+            'message' => __('response.application.update.success'),
+        ]);
+
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @throws Throwable
      */
-    public function store(StoreApplicationRequest $request)
+    public function destroy(DeletesApplications $deleter, Application $application): JsonResponse
     {
-        //
-    }
+        Gate::authorize('delete', $application);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Application $application)
-    {
-        return inertia('Application/Show');
-    }
+        throw_unless($deleter->delete($application));
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Application $application)
-    {
-        return inertia('Application/Edit');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateApplicationRequest $request, Application $application)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Application $application)
-    {
-        //
+        return response()->json([
+            'message' => __('response.application.delete.success'),
+        ]);
     }
 }

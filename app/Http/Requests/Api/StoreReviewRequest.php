@@ -1,28 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Api;
 
+use App\Models\Review;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreReviewRequest extends FormRequest
+final class StoreReviewRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return $this->user()->can('create', Review::class);
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'apprentice' => ['required', 'string', 'exists:apprentices,slug'],
+            'company' => ['required', 'string', 'exists:companies,slug'],
+            'summary' => ['required', 'string', 'min:10', 'max:30'],
+            'description' => ['required', 'string', 'min:10'],
+            'medias' => ['nullable', 'array', 'image', 'max:2024'],
         ];
     }
 }

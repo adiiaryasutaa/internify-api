@@ -1,13 +1,37 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Employer;
 
+use App\Actions\Employer\Contracts\GeneratesEmployersSlugs;
 use App\Actions\Employer\Contracts\UpdatesEmployers;
+use App\Actions\User\Contracts\UpdatesUsers;
+use App\Models\Employer;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
-class UpdateEmployer implements UpdatesEmployers
+final class UpdateEmployer implements UpdatesEmployers
 {
-    public function update(array $inputs)
+    private array $fills;
+
+    public function __construct(
+        Employer                          $employer,
+        protected UpdatesUsers            $userUpdater,
+        protected GeneratesEmployersSlugs $slugGenerator,
+    ) {
+        $this->fills = $employer->getFillable();
+    }
+
+    public function update(Employer $employer, array $inputs)
     {
-        // TODO: update
+        return DB::transaction(function () use ($employer, $inputs) {
+            $employer = $employer->loadMissing('user');
+
+            $data = Arr::only($inputs, $this->fills);
+            $data['slug'] = $this->slugGenerator->generate($inputs['name']);
+
+            return $employer->update($data) && $this->userUpdater->update($employer->user, $inputs);
+        });
     }
 }

@@ -1,63 +1,74 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
 use App\Models\Application;
 use App\Models\User;
 
-class ApplicationPolicy
+final class ApplicationPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
     public function viewAny(User $user): bool
     {
         return true;
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, Application $application): bool
     {
-        return true;
+        if ($user->role->isAdmin()) {
+            return true;
+        }
+
+        if ($user->role->isApprentice()) {
+            $application = $application->loadMissing('apprentice');
+            return $application->apprentice->is($user->userable);
+        }
+
+        $application = $application->loadMissing('company.employer');
+        return $application->company->employer->is($user->userable);
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
         return $user->role->is(['admin', 'apprentice']);
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, Application $application): bool
     {
-        return $user->role->is(['admin', 'apprentice']);
+        if ($user->role->isAdmin()) {
+            return true;
+        }
+
+        if ($user->role->isApprentice()) {
+            $application = $application->loadMissing('apprentice');
+
+            return $application->status->isPending() && $application->apprentice->is($user->userable);
+        }
+
+        return false;
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
     public function delete(User $user, Application $application): bool
     {
-        return $user->role->is(['admin', 'apprentice']);
+        if ($user->role->isAdmin()) {
+            return true;
+        }
+
+        if ($user->role->isEmployer()) {
+            $application = $application->loadMissing('company.employer');
+            return $application->company->employer->is($user->userable);
+        }
+
+        $application = $application->loadMissing('apprentice');
+        return $application->status->isPending() && $application->apprentice->is($user->userable);
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
     public function restore(User $user, Application $application): bool
     {
         return $user->role->isAdmin();
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
     public function forceDelete(User $user, Application $application): bool
     {
         return false;

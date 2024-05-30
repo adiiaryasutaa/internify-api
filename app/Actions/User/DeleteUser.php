@@ -1,13 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\User;
 
 use App\Actions\User\Contracts\DeletesUsers;
+use App\Models\User;
 
-class DeleteUser implements DeletesUsers
+final class DeleteUser implements DeletesUsers
 {
-    public function delete()
+    public function delete(User $user): bool
     {
-        // TODO: delete
+        $user->getFirstMedia('avatar')?->delete();
+
+        return $user->delete();
     }
 }

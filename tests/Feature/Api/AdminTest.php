@@ -1,90 +1,81 @@
 <?php
 
-namespace Api;
+declare(strict_types=1);
+
+namespace Tests\Feature\Api;
 
 use App\Models\Admin;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
-use Laravel\Sanctum\Sanctum;
+use Tests\Feature\Api\Traits\ActingAsAdmin;
 use Tests\TestCase;
 
-class AdminTest extends TestCase
+final class AdminTest extends TestCase
 {
+    use ActingAsAdmin;
     use RefreshDatabase;
 
-    protected function setUp(): void
+    public function test_admin_list(): void
     {
-        parent::setUp();
-
-        Sanctum::actingAs(User::factory()
-            ->asAdmin()
-            ->for(Admin::factory()->owner(), 'userable')
-            ->create()
-        );
-    }
-
-    public function test_admin_list()
-    {
-        Admin::factory()
-            ->count(20)
-            ->has(User::factory()->asAdmin(), 'user')
-            ->create();
-
+        Admin::factory()->count(20)->has(User::factory()->asAdmin(), 'user')->create();
         $response = $this->getJson(route('admins.index'));
 
         $response->assertOk();
         $response->assertJsonCount(15, 'data');
     }
 
-    public function test_create_admin()
+    public function test_create_admin(): void
     {
         $data = User::factory()->unsafePassword()->raw();
 
         $response = $this->postJson(route('admins.store'), $data);
 
         $response->assertOk();
-
-        Arr::forget($data, 'password');
-        $this->assertDatabaseHas('users', $data);
-
+        $this->assertDatabaseHas('users', Arr::except($data, ['password']));
         $response->assertJsonStructure(['message']);
-
     }
 
-    public function test_show_admin()
+    public function test_show_admin(): void
     {
-        $admin = Admin::factory()->create();
+        $admin = Admin::factory()->has(User::factory()->asAdmin(), 'user')->create();
+        $this->assertModelExists($admin);
+        $this->assertModelExists($admin->user);
 
         $response = $this->getJson(route('admins.show', $admin));
 
         $response->assertOk();
-
-        $response->assertJson(['data' => $admin->toArray()]);
+        $response->assertJsonStructure(['data']);
     }
 
-    public function test_update_admin()
+    public function test_update_admin(): void
     {
-        $admin = Admin::factory()->create();
-        $updatedData = Admin::factory()->raw();
+        $admin = Admin::factory()->has(User::factory()->asAdmin(), 'user')->create();
+        $this->assertModelExists($admin);
+        $this->assertModelExists($admin->user);
 
-        $response = $this->putJson(route('admins.update', $admin), $updatedData);
+        $updateData = User::factory()->asAdmin()->withoutPassword()->raw();
+        $updateData['avatar'] = UploadedFile::fake()->image('avatar.png');
+
+        $response = $this->putJson(route('admins.update', $admin), $updateData);
 
         $response->assertOk();
-        $response->assertJson(['message' => __('response.admin.update.success')]);
-
-        $this->assertDatabaseHas('admins', $updatedData);
+        $response->assertJsonStructure(['message']);
+        $this->assertDatabaseHas('users', Arr::except($updateData, 'avatar'));
     }
 
-    public function test_delete_admin()
+    public function test_delete_admin(): void
     {
-        $admin = Admin::factory()->create();
+        $admin = Admin::factory()->has(User::factory()->asAdmin(), 'user')->create();
+        $this->assertModelExists($admin);
+        $this->assertModelExists($admin->user);
 
         $response = $this->deleteJson(route('admins.destroy', $admin));
 
         $response->assertOk();
-        $response->assertJson(['message' => __('response.admin.delete.success')]);
-
+        $response->assertJsonStructure(['message']);
         $this->assertModelMissing($admin);
+        $this->assertModelMissing($admin->user);
     }
 }

@@ -1,67 +1,77 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
+use App\Actions\Apprentice\Contracts\CreatesApprentices;
+use App\Actions\Apprentice\Contracts\DeletesApprentices;
+use App\Actions\Apprentice\Contracts\UpdatesApprentices;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreApprenticeRequest;
 use App\Http\Requests\Api\UpdateApprenticeRequest;
+use App\Http\Resources\ApprenticeCollection;
+use App\Http\Resources\ApprenticeResource;
 use App\Models\Apprentice;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Throwable;
 
-class ApprenticeController extends Controller
+final class ApprenticeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request): ApprenticeCollection
     {
-        return inertia('Apprentice/Index');
+        Gate::authorize('viewAny', Apprentice::class);
+
+        return ApprenticeCollection::make(Apprentice::paginate(
+            perPage: $request->integer('per-page', null),
+        ));
+    }
+
+    public function store(CreatesApprentices $creator, StoreApprenticeRequest $request): JsonResponse
+    {
+        Gate::authorize('create', Apprentice::class);
+
+        $creator->create($request->validated());
+
+        return response()->json([
+            'message' => __('response.apprentice.create.success'),
+        ]);
+    }
+
+    public function show(Apprentice $apprentice): ApprenticeResource
+    {
+        Gate::authorize('view', $apprentice);
+
+        return ApprenticeResource::make($apprentice);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * @throws Throwable
      */
-    public function create()
+    public function update(UpdatesApprentices $updater, UpdateApprenticeRequest $request, Apprentice $apprentice): JsonResponse
     {
-        return inertia('Apprentice/Create');
+        Gate::authorize('update', $apprentice);
+
+        throw_unless($updater->update($apprentice, $request->validated()));
+
+        return response()->json([
+            'message' => __('response.apprentice.update.success'),
+        ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @throws Throwable
      */
-    public function store(StoreApprenticeRequest $request)
+    public function destroy(DeletesApprentices $deleter, Apprentice $apprentice): JsonResponse
     {
-        //
-    }
+        Gate::authorize('delete', $apprentice);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Apprentice $apprentice)
-    {
-        return inertia('Apprentice/Show');
-    }
+        throw_unless($deleter->delete($apprentice));
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Apprentice $apprentice)
-    {
-        return inertia('Apprentice/Edit');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateApprenticeRequest $request, Apprentice $apprentice)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Apprentice $apprentice)
-    {
-        //
+        return response()->json([
+            'message' => __('response.apprentice.delete.success'),
+        ]);
     }
 }

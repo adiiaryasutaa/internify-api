@@ -1,28 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Api;
 
+use App\Models\Company;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreCompanyRequest extends FormRequest
+final class StoreCompanyRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return $this->user()->can('create', Company::class);
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'employer' => ['required', 'string', 'exists:employers,slug'],
+            'cover' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'name' => ['required', 'string', 'min:6', 'max:255'],
+            'description' => ['required', 'string', 'min:20'],
+            'address' => ['required', 'string', 'min:10', 'max:255'],
+            'phone' => ['required', 'string', 'min:10', 'max:13'],
+            'link' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

@@ -1,63 +1,69 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
 use App\Models\Review;
 use App\Models\User;
 
-class ReviewPolicy
+final class ReviewPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
     public function viewAny(User $user): bool
     {
         return true;
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, Review $review): bool
     {
-        return true;
+        if ($user->role->isAdmin()) {
+            return true;
+        }
+
+        $user = $user->loadMissing('userable');
+
+        if ($user->role->isEmployer()) {
+            $review = $review->loadMissing('company.employer');
+
+            return $review->company->employer->is($user->userable);
+        }
+
+        $review = $review->loadMissing('apprentice');
+
+        return $review->apprentice->is($user->userable);
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
         return $user->role->is(['admin', 'apprentice']);
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, Review $review): bool
     {
-        return $user->role->is(['admin', 'apprentice']);
+        if ($user->role->isAdmin()) {
+            return true;
+        }
+
+        if ($user->role->isApprentice()) {
+            $user = $user->loadMissing('userable');
+            $review = $review->loadMissing('apprentice');
+
+            return $review->apprentice->is($user->userable) && $review->created_at?->lte(now()->addDay());
+        }
+
+        return false;
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
     public function delete(User $user, Review $review): bool
     {
-        return $user->role->is(['admin', 'apprentice']);
+        return $this->update($user, $review);
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
     public function restore(User $user, Review $review): bool
     {
         return $user->role->isAdmin();
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
     public function forceDelete(User $user, Review $review): bool
     {
         return false;

@@ -1,13 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Vacancy;
 
 use App\Actions\Vacancy\Contracts\UpdatesVacancies;
+use App\Models\Vacancy;
+use Illuminate\Support\Arr;
 
-class UpdateVacancy implements UpdatesVacancies
+final class UpdateVacancy implements UpdatesVacancies
 {
-    public function update(array $inputs)
+    private array $fill = [];
+
+    public function __construct(Vacancy $vacancy)
     {
-        // TODO: update
+        $this->fill = Arr::except($vacancy->getFillable(), ['company_id']);
+    }
+
+    public function update(Vacancy $vacancy, array $inputs): bool
+    {
+        $data = Arr::only($inputs, $this->fill);
+
+        return $vacancy->update($data);
     }
 }

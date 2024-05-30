@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Api;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class UpdateEmployerRequest extends FormRequest
+final class UpdateEmployerRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,13 +17,11 @@ class UpdateEmployerRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user' => [
-                'name' => ['required', 'string', 'max:255'],
-                'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'.$this->user()->id],
-                'username' => ['required', 'string', 'max:20', 'unique:users,username'.$this->user()->id],
-                'password' => ['nullable', 'string', 'min:8'],
-                'photo' => ['nullable', 'image', 'mimes:jpeg,jpg,png', 'max:2048'],
-            ],
+            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'name' => ['required', 'string', 'min:2', 'max:50'],
+            'username' => ['required', 'string', 'min:5', 'max:20', Rule::unique('users')->ignore($this->user()->id)],
+            'email' => ['required', 'email:rfc,dns', 'unique:users', Rule::unique('users')->ignore($this->user()->id)],
+            'password' => ['nullable', 'min:6', 'max:20'],
         ];
     }
 }

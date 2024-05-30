@@ -1,31 +1,40 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Admin;
 
 use App\Actions\Admin\Contracts\CreatesAdmins;
+use App\Actions\Admin\Contracts\GeneratesAdminsCodes;
+use App\Actions\Admin\Contracts\GeneratesAdminsSlugs;
 use App\Actions\User\Contracts\CreatesUsers;
-use App\Enums\Role;
-use App\Exceptions\CreateAdminWithoutUserException;
 use App\Models\Admin;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
-class CreateAdmin implements CreatesAdmins
+final class CreateAdmin implements CreatesAdmins
 {
-    public function __construct(protected CreatesUsers $userCreator)
-    {
+    private array $fills;
+
+    public function __construct(
+        Admin                          $admin,
+        protected CreatesUsers         $userCreator,
+        protected GeneratesAdminsCodes $codeGenerator,
+        protected GeneratesAdminsSlugs $slugGenerator,
+    ) {
+        $this->fills = $admin->getFillable();
     }
 
     public function create(array $inputs): Admin
     {
         return DB::transaction(function () use ($inputs) {
-            $userData = Arr::only($inputs, ['avatar', 'name', 'username', 'email', 'password']);
-            Arr::forget($inputs, ['avatar', 'name', 'username', 'email', 'password']);
-            $userData['role'] = Role::ADMIN;
+            $data = Arr::only($inputs, $this->fills);
+            $data['code'] = $this->codeGenerator->generate();
+            $data['slug'] = $this->slugGenerator->generate($inputs['name']);
 
-            throw_unless($userData, CreateAdminWithoutUserException::class);
-
-            return tap(Admin::create($inputs), fn(Admin $admin) => $this->userCreator->createForAdmin($admin, $userData)
+            return tap(
+                Admin::create($data),
+                fn(Admin $admin) => $this->userCreator->createAsAdmin($admin, $inputs),
             );
         });
     }

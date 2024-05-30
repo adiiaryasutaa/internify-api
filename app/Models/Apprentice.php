@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Models\Concerns\CastTimestampsToDatetime;
@@ -8,12 +10,19 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
-class Apprentice extends Model
+final class Apprentice extends Model
 {
     use CastTimestampsToDatetime;
     use HasFactory;
 
-    protected $with = ['user'];
+    protected $with = [
+        'user',
+    ];
+
+    protected $fillable = [
+        'slug',
+        'code',
+    ];
 
     public function user(): MorphOne
     {
