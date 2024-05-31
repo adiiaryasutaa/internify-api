@@ -14,8 +14,9 @@ final class ApprenticeResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'user' => UserResource::make($this->user),
+            'code' => $this->code,
             'slug' => $this->slug,
+            'user' => UserResource::make($this->user),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

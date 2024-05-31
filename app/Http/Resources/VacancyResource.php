@@ -14,6 +14,7 @@ final class VacancyResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'code' => $this->code,
             'slug' => $this->slug,
             'title' => $this->title,
             'description' => $this->description,

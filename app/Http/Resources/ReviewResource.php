@@ -14,6 +14,7 @@ final class ReviewResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'code' => $this->code,
             'slug' => $this->slug,
             'apprentice' => ApprenticeResource::make($this->whenLoaded('apprentice')),
             'company' => CompanyResource::make($this->whenLoaded('company')),

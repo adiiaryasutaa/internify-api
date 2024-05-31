@@ -16,6 +16,7 @@ final class ApplicationResource extends JsonResource
         $this->loadMissing(['vacancy', 'apprentice']);
 
         return [
+            'code' => $this->code,
             'slug' => $this->slug,
             'vacancy' => VacancyResource::make($this->vacancy),
             'apprentice' => ApprenticeResource::make($this->apprentice),
