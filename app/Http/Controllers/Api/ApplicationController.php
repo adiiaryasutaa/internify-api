@@ -18,15 +18,17 @@ use App\Models\Vacancy;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Gate;
 use Throwable;
 
 final class ApplicationController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Application::class, 'application');
+    }
+
     public function index(Request $request): ApplicationCollection
     {
-        Gate::authorize('viewAny', Application::class);
-
         return ApplicationCollection::make(Application::paginate(
             perPage: $request->integer('per-page', null),
         ));
@@ -34,8 +36,6 @@ final class ApplicationController extends Controller
 
     public function store(CreatesApplications $creator, StoreApplicationRequest $request): JsonResponse
     {
-        Gate::authorize('create', Application::class);
-
         $request = $request->validated();
 
         $apprentice = Apprentice::whereSlug(Arr::pull($request, 'apprentice'))->firstOrFail(['id', 'slug']);
@@ -50,8 +50,6 @@ final class ApplicationController extends Controller
 
     public function show(Application $application): ApplicationResource
     {
-        Gate::authorize('view', $application);
-
         return ApplicationResource::make($application);
     }
 
@@ -60,8 +58,6 @@ final class ApplicationController extends Controller
      */
     public function update(UpdatesApplications $updater, UpdateApplicationRequest $request, Application $application): JsonResponse
     {
-        Gate::authorize('update', $application);
-
         throw_unless($updater->update($application, $request->validated()));
 
         return response()->json([
@@ -75,8 +71,6 @@ final class ApplicationController extends Controller
      */
     public function destroy(DeletesApplications $deleter, Application $application): JsonResponse
     {
-        Gate::authorize('delete', $application);
-
         throw_unless($deleter->delete($application));
 
         return response()->json([

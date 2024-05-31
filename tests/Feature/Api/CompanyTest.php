@@ -17,8 +17,8 @@ use Tests\TestCase;
 
 final class CompanyTest extends TestCase
 {
-    use RefreshDatabase;
     use ActingAsAdmin;
+    use RefreshDatabase;
 
     public function test_company_list(): void
     {

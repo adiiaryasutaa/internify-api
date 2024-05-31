@@ -18,15 +18,17 @@ use App\Models\Review;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Gate;
 use Throwable;
 
 final class ReviewController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Review::class, 'review');
+    }
+
     public function index(Request $request): ReviewCollection
     {
-        Gate::authorize('viewAny', Review::class);
-
         return ReviewCollection::make(Review::paginate(
             perPage: $request->integer('per-page', null),
         ));
@@ -34,8 +36,6 @@ final class ReviewController extends Controller
 
     public function store(CreatesReviews $creator, StoreReviewRequest $request): JsonResponse
     {
-        Gate::authorize('create', Review::class);
-
         $request = $request->validated();
 
         $apprentice = Apprentice::whereSlug(Arr::pull($request, 'apprentice'))->firstOrFail(['id', 'slug']);
@@ -50,8 +50,6 @@ final class ReviewController extends Controller
 
     public function show(Review $review): ReviewResource
     {
-        Gate::authorize('view', $review);
-
         return ReviewResource::make($review);
     }
 
@@ -60,8 +58,6 @@ final class ReviewController extends Controller
      */
     public function update(UpdatesReviews $updater, UpdateReviewRequest $request, Review $review): JsonResponse
     {
-        Gate::authorize('update', $review);
-
         throw_unless($updater->update($review, $request->validated()));
 
         return response()->json([
@@ -74,8 +70,6 @@ final class ReviewController extends Controller
      */
     public function destroy(DeletesReviews $deleter, Review $review): JsonResponse
     {
-        Gate::authorize('delete', $review);
-
         throw_unless($deleter->delete($review));
 
         return response()->json([

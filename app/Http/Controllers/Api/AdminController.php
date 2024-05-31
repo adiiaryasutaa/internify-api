@@ -15,24 +15,24 @@ use App\Http\Resources\AdminResource;
 use App\Models\Admin;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 use Throwable;
 
 final class AdminController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Admin::class, 'admin');
+    }
+
     public function index(Request $request): AdminCollection
     {
-        Gate::authorize('viewAny', Admin::class);
-
-        return AdminCollection::make(Admin::paginate(
-            perPage: $request->integer('per-page', null),
-        ));
+        return AdminCollection::make(
+            Admin::paginate($request->integer('per-page', null)),
+        );
     }
 
     public function store(CreatesAdmins $creator, StoreAdminRequest $request): JsonResponse
     {
-        Gate::authorize('create', Admin::class);
-
         $creator->create($request->validated());
 
         return response()->json([
@@ -42,8 +42,6 @@ final class AdminController extends Controller
 
     public function show(Admin $admin): AdminResource
     {
-        Gate::authorize('view', $admin);
-
         return AdminResource::make($admin);
     }
 
@@ -52,8 +50,6 @@ final class AdminController extends Controller
      */
     public function update(UpdatesAdmins $updater, UpdateAdminRequest $request, Admin $admin): JsonResponse
     {
-        Gate::authorize('update', $admin);
-
         throw_unless($updater->update($admin, $request->validated()));
 
         return response()->json([
@@ -66,8 +62,6 @@ final class AdminController extends Controller
      */
     public function destroy(DeletesAdmins $deleter, Admin $admin): JsonResponse
     {
-        Gate::authorize('delete', $admin);
-
         throw_unless($deleter->delete($admin));
 
         return response()->json([

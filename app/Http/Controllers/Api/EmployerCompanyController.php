@@ -15,22 +15,22 @@ use App\Models\Company;
 use App\Models\Employer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Gate;
 use Throwable;
 
 final class EmployerCompanyController extends Controller
 {
-    public function index(Employer $employer): JsonResource
+    public function __construct()
     {
-        Gate::authorize('view', Company::class);
+        $this->authorizeResource(Company::class, ['employer', 'company']);
+    }
 
+    public function index(Employer $employer, Company $company): JsonResource
+    {
         return CompanyResource::make($employer->load('company')->company);
     }
 
     public function store(CreatesCompanies $creator, StoreEmployerRequest $request, Employer $employer): JsonResponse
     {
-        Gate::authorize('create', [Company::class, $employer]);
-
         $creator->create($employer, $request->validated());
 
         return response()->json([
@@ -43,8 +43,6 @@ final class EmployerCompanyController extends Controller
      */
     public function update(UpdatesCompanies $updater, StoreCompanyRequest $request, Employer $employer, Company $company): JsonResponse
     {
-        Gate::authorize('update', $company);
-
         throw_unless($updater->update($company, $request->validated()));
 
         return response()->json([
@@ -57,8 +55,6 @@ final class EmployerCompanyController extends Controller
      */
     public function destroy(DeletesCompanies $deleter, Employer $employer, Company $company): JsonResponse
     {
-        Gate::authorize('delete', $company);
-
         throw_unless($deleter->delete($company));
 
         return response()->json([

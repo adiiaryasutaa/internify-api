@@ -15,15 +15,17 @@ use App\Http\Resources\ApprenticeResource;
 use App\Models\Apprentice;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 use Throwable;
 
 final class ApprenticeController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Apprentice::class, 'apprentice');
+    }
+
     public function index(Request $request): ApprenticeCollection
     {
-        Gate::authorize('viewAny', Apprentice::class);
-
         return ApprenticeCollection::make(Apprentice::paginate(
             perPage: $request->integer('per-page', null),
         ));
@@ -31,8 +33,6 @@ final class ApprenticeController extends Controller
 
     public function store(CreatesApprentices $creator, StoreApprenticeRequest $request): JsonResponse
     {
-        Gate::authorize('create', Apprentice::class);
-
         $creator->create($request->validated());
 
         return response()->json([
@@ -42,8 +42,6 @@ final class ApprenticeController extends Controller
 
     public function show(Apprentice $apprentice): ApprenticeResource
     {
-        Gate::authorize('view', $apprentice);
-
         return ApprenticeResource::make($apprentice);
     }
 
@@ -52,8 +50,6 @@ final class ApprenticeController extends Controller
      */
     public function update(UpdatesApprentices $updater, UpdateApprenticeRequest $request, Apprentice $apprentice): JsonResponse
     {
-        Gate::authorize('update', $apprentice);
-
         throw_unless($updater->update($apprentice, $request->validated()));
 
         return response()->json([
@@ -66,8 +62,6 @@ final class ApprenticeController extends Controller
      */
     public function destroy(DeletesApprentices $deleter, Apprentice $apprentice): JsonResponse
     {
-        Gate::authorize('delete', $apprentice);
-
         throw_unless($deleter->delete($apprentice));
 
         return response()->json([

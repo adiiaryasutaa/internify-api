@@ -17,15 +17,17 @@ use App\Models\Employer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Gate;
 use Throwable;
 
 final class CompanyController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Company::class, 'company');
+    }
+
     public function index(Request $request): CompanyCollection
     {
-        Gate::authorize('viewAny', Company::class);
-
         return CompanyCollection::make(Company::paginate(
             perPage: $request->integer('per-page', null),
         ));
@@ -33,8 +35,6 @@ final class CompanyController extends Controller
 
     public function store(CreatesCompanies $creator, StoreCompanyRequest $request): JsonResponse
     {
-        Gate::authorize('create', Company::class);
-
         $request = $request->validated();
 
         $employer = Employer::whereSlug(Arr::pull($request, 'employer'))->firstOrFail(['id', 'slug']);
@@ -48,8 +48,6 @@ final class CompanyController extends Controller
 
     public function show(Company $company): CompanyResource
     {
-        Gate::authorize('view', $company);
-
         return CompanyResource::make($company);
     }
 
@@ -58,8 +56,6 @@ final class CompanyController extends Controller
      */
     public function update(UpdatesCompanies $updater, UpdateCompanyRequest $request, Company $company): JsonResponse
     {
-        Gate::authorize('update', $company);
-
         throw_unless($updater->update($company, $request->validated()));
 
         return response()->json([
@@ -72,8 +68,6 @@ final class CompanyController extends Controller
      */
     public function destroy(DeletesCompanies $deleter, Company $company): JsonResponse
     {
-        Gate::authorize('delete', $company);
-
         throw_unless($deleter->delete($company));
 
         return response()->json([

@@ -17,15 +17,17 @@ use App\Models\Vacancy;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Gate;
 use Throwable;
 
 final class VacancyController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Vacancy::class, 'vacancy');
+    }
+
     public function index(Request $request): VacancyCollection
     {
-        Gate::authorize('viewAny', Vacancy::class);
-
         $perPage = $request->integer('per-page', null);
 
         return VacancyCollection::make(
@@ -35,8 +37,6 @@ final class VacancyController extends Controller
 
     public function store(CreatesVacancies $creator, StoreVacancyRequest $request): JsonResponse
     {
-        Gate::authorize('create', Vacancy::class);
-
         $request = $request->validated();
 
         $company = Company::whereSlug(Arr::pull($request, 'company'))->firstOrFail(['id', 'slug']);
@@ -50,8 +50,6 @@ final class VacancyController extends Controller
 
     public function show(Vacancy $vacancy): VacancyResource
     {
-        Gate::authorize('view', $vacancy);
-
         return VacancyResource::make($vacancy);
     }
 
@@ -60,8 +58,6 @@ final class VacancyController extends Controller
      */
     public function update(UpdatesVacancies $updater, UpdateVacancyRequest $request, Vacancy $vacancy): JsonResponse
     {
-        Gate::authorize('update', $vacancy);
-
         throw_unless($updater->update($vacancy, $request->validated()));
 
         return response()->json([
@@ -75,8 +71,6 @@ final class VacancyController extends Controller
      */
     public function destroy(DeletesVacancies $deleter, Vacancy $vacancy): JsonResponse
     {
-        Gate::authorize('delete', $vacancy);
-
         throw_unless($deleter->delete($vacancy));
 
         return response()->json([

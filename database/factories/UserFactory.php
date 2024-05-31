@@ -7,8 +7,6 @@ namespace Database\Factories;
 use App\Enums\Role;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
 
 /** @extends Factory<User> */
 final class UserFactory extends Factory
