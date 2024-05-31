@@ -17,7 +17,7 @@ final class StoreCompanyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'employer' => ['required', 'string', 'exists:employers,slug'],
+            'employer' => ['required', 'string', 'exists:employers,code'],
             'cover' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
             'name' => ['required', 'string', 'min:6', 'max:255'],
             'description' => ['required', 'string', 'min:20'],

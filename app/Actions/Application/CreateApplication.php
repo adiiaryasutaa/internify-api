@@ -20,8 +20,7 @@ final class CreateApplication implements CreatesApplications
         Application $application,
         protected GeneratesApplicationsSlugs $slugGenerator,
         protected GeneratesApplicationsCodes $codeGenerator,
-    )
-    {
+    ) {
         $this->fills = array_diff($application->getFillable(), ['apprentice_id', 'vacancy_id']);
     }
 

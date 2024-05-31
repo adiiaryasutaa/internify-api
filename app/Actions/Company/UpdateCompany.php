@@ -20,8 +20,7 @@ final class UpdateCompany implements UpdatesCompanies
         Company                           $company,
         protected GeneratesCompaniesSlugs $slugGenerator,
         protected GeneratesCompaniesCodes $codeGenerator,
-    )
-    {
+    ) {
         $this->fills = array_diff($company->getFillable(), ['code', 'slug', 'employer_id']);
     }
 
@@ -33,7 +32,7 @@ final class UpdateCompany implements UpdatesCompanies
     {
         $data = Arr::only($inputs, $this->fills);
 
-        if (!$company->update($data)) {
+        if ( ! $company->update($data)) {
             return false;
         }
 

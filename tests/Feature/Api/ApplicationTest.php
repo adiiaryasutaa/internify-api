@@ -57,8 +57,8 @@ final class ApplicationTest extends TestCase
         $data = Application::factory()->for($apprentice)->for($vacancy)->withoutCode()->withoutSlug()->raw();
 
         $response = $this->postJson(route('applications.store'), array_merge($data, [
-            'vacancy' => $vacancy->slug,
-            'apprentice' => $apprentice->slug,
+            'vacancy' => $vacancy->code,
+            'apprentice' => $apprentice->code,
         ]));
 
         $response->assertOk();

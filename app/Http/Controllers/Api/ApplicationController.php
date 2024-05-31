@@ -17,7 +17,6 @@ use App\Models\Apprentice;
 use App\Models\Vacancy;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Throwable;
 
 final class ApplicationController extends Controller
@@ -38,8 +37,8 @@ final class ApplicationController extends Controller
     {
         $request = $request->validated();
 
-        $apprentice = Apprentice::whereSlug(Arr::pull($request, 'apprentice'))->firstOrFail(['id', 'slug']);
-        $vacancy = Vacancy::whereSlug(Arr::pull($request, 'vacancy'))->firstOrFail(['id', 'slug']);
+        $apprentice = Apprentice::whereCode($request['apprentice'])->firstOrFail(['id', 'slug']);
+        $vacancy = Vacancy::whereCode($request['vacancy'])->firstOrFail(['id', 'slug']);
 
         $creator->create($apprentice, $vacancy, $request);
 

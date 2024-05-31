@@ -11,7 +11,7 @@ final class UpdateAdminRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->role->isAdmin() && $this->user()->userable->is_owner;
+        return $this->user()->can('update', $this->admin);
     }
 
     public function rules(): array
@@ -19,8 +19,8 @@ final class UpdateAdminRequest extends FormRequest
         return [
             'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
             'name' => ['required', 'string', 'min:2', 'max:50'],
-            'username' => ['required', 'string', 'min:5', 'max:20', Rule::unique('users')->ignore($this->user()->id)],
-            'email' => ['required', 'email:rfc,dns', 'unique:users', Rule::unique('users')->ignore($this->user()->id)],
+            'username' => ['required', 'string', 'min:5', 'max:20', Rule::unique('users')->ignore($this->admin->user->id)],
+            'email' => ['required', 'email:rfc,dns', Rule::unique('users')->ignore($this->admin->user->id)],
             'password' => ['nullable', 'min:6', 'max:20'],
         ];
     }

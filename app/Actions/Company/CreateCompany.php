@@ -21,8 +21,7 @@ final class CreateCompany implements CreatesCompanies
         Company $company,
         protected GeneratesCompaniesSlugs $slugGenerator,
         protected GeneratesCompaniesCodes $codeGenerator,
-    )
-    {
+    ) {
         $this->fills = array_diff($company->getFillable(), ['code', 'slug', 'employer_id']);
     }
 

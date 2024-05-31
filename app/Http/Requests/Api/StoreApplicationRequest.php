@@ -17,8 +17,8 @@ final class StoreApplicationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'vacancy' => ['required', 'string', 'exists:vacancies,slug'],
-            'apprentice' => ['required', 'string', 'exists:apprentices,slug'],
+            'vacancy' => ['required', 'string', 'exists:vacancies,code'],
+            'apprentice' => ['required', 'string', 'exists:apprentices,code'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255'],
             'phone' => ['required', 'numeric', 'min_digits:10', 'max_digits:13'],

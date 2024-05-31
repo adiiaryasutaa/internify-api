@@ -41,7 +41,7 @@ final class CompanyTest extends TestCase
         $data = Company::factory()->withoutCode()->withoutSlug()->raw();
 
         $response = $this->postJson(route('companies.store'), array_merge($data, [
-            'employer' => $employer->slug,
+            'employer' => $employer->code,
             'cover' => UploadedFile::fake()->image('cover.png'),
         ]));
 

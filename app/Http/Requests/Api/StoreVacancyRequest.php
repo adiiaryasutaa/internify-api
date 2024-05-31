@@ -17,7 +17,7 @@ final class StoreVacancyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'company' => ['required', 'string', 'exists:companies,slug'],
+            'company' => ['required', 'string', 'exists:companies,code'],
             'title' => ['required', 'string', 'min:5', 'max:255'],
             'description' => ['required', 'string', 'min:50'],
             'location' => ['required', 'string', 'min:10'],

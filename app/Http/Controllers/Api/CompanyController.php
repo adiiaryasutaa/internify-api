@@ -16,7 +16,6 @@ use App\Models\Company;
 use App\Models\Employer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Throwable;
 
 final class CompanyController extends Controller
@@ -37,7 +36,7 @@ final class CompanyController extends Controller
     {
         $request = $request->validated();
 
-        $employer = Employer::whereSlug(Arr::pull($request, 'employer'))->firstOrFail(['id', 'slug']);
+        $employer = Employer::whereCode($request['employer'])->firstOrFail(['id', 'slug']);
 
         $creator->create($employer, $request);
 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api;
 
-use App\Models\Admin;
 use App\Models\Company;
 use App\Models\Employer;
 use App\Models\User;
@@ -13,24 +12,13 @@ use Database\Seeders\CompanySeeder;
 use Database\Seeders\EmployerSeeder;
 use Database\Seeders\VacancySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Laravel\Sanctum\Sanctum;
+use Tests\Feature\Api\Traits\ActingAsAdmin;
 use Tests\TestCase;
 
 final class VacancyTest extends TestCase
 {
+    use ActingAsAdmin;
     use RefreshDatabase;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        Sanctum::actingAs(
-            User::factory()
-                ->asAdmin()
-                ->for(Admin::factory()->owner(), 'userable')
-                ->create(),
-        );
-    }
 
     public function test_vacancy_list(): void
     {
@@ -57,7 +45,7 @@ final class VacancyTest extends TestCase
         $data = Vacancy::factory()->for($company)->withoutCode()->withoutSlug()->raw();
 
         $response = $this->postJson(route('vacancies.store'), array_merge($data, [
-            'company' => $company->slug,
+            'company' => $company->code,
         ]));
 
         $response->assertOk();

@@ -19,8 +19,7 @@ final class CreateVacancy implements CreatesVacancies
         Vacancy $vacancy,
         protected GeneratesVacanciesSlugs $slugGenerator,
         protected GeneratesVacanciesCodes $codesGenerator,
-    )
-    {
+    ) {
         $this->fill = array_diff($vacancy->getFillable(), ['code', 'slug', 'company_id', 'slug']);
     }
 

@@ -20,8 +20,7 @@ final class CreateReview implements CreatesReviews
         Review $review,
         protected GeneratesReviewsSlugs $slugGenerate,
         protected GeneratesReviewsCodes $codeGenerate,
-    )
-    {
+    ) {
         $this->fills = array_diff($review->getFillable(), ['code', 'slug', 'apprentice_id', 'company_id']);
     }
 

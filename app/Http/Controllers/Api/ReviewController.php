@@ -17,7 +17,6 @@ use App\Models\Company;
 use App\Models\Review;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Throwable;
 
 final class ReviewController extends Controller
@@ -38,8 +37,8 @@ final class ReviewController extends Controller
     {
         $request = $request->validated();
 
-        $apprentice = Apprentice::whereSlug(Arr::pull($request, 'apprentice'))->firstOrFail(['id', 'slug']);
-        $company = Company::whereSlug(Arr::pull($request, 'company'))->firstOrFail(['id', 'slug']);
+        $apprentice = Apprentice::whereCode($request['apprentice'])->firstOrFail(['id', 'slug']);
+        $company = Company::whereCode($request['company'])->firstOrFail(['id', 'slug']);
 
         $creator->create($apprentice, $company, $request);
 

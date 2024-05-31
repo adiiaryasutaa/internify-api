@@ -17,8 +17,8 @@ final class StoreReviewRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'apprentice' => ['required', 'string', 'exists:apprentices,slug'],
-            'company' => ['required', 'string', 'exists:companies,slug'],
+            'apprentice' => ['required', 'string', 'exists:apprentices,code'],
+            'company' => ['required', 'string', 'exists:companies,code'],
             'summary' => ['required', 'string', 'min:10', 'max:30'],
             'description' => ['required', 'string', 'min:10'],
             'medias' => ['nullable', 'array', 'image', 'max:2024'],

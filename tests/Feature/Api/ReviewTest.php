@@ -51,8 +51,8 @@ final class ReviewTest extends TestCase
         $data = Review::factory()->for($apprentice)->for($company)->withoutCode()->withoutSlug()->raw();
 
         $response = $this->postJson(route('reviews.store'), array_merge($data, [
-            'company' => $company->slug,
-            'apprentice' => $apprentice->slug,
+            'company' => $company->code,
+            'apprentice' => $apprentice->code,
         ]));
 
         $response->assertOk();
