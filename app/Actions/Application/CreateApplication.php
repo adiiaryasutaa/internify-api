@@ -6,6 +6,7 @@ namespace App\Actions\Application;
 
 use App\Actions\Application\Contracts\CreatesApplications;
 use App\Actions\Application\Contracts\GeneratesApplicationsCodes;
+use App\Actions\Application\Contracts\GeneratesApplicationsSlugs;
 use App\Models\Application;
 use App\Models\Apprentice;
 use App\Models\Vacancy;
@@ -17,7 +18,7 @@ final class CreateApplication implements CreatesApplications
 
     public function __construct(
         Application $application,
-        protected GenerateApplicationSlug $slugGenerator,
+        protected GeneratesApplicationsSlugs $slugGenerator,
         protected GeneratesApplicationsCodes $codeGenerator,
     )
     {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Actions\Vacancy\Contracts\GeneratesVacanciesCodes;
-use App\Actions\Vacancy\GenerateVacancySlug;
+use App\Actions\Vacancy\Contracts\GeneratesVacanciesSlugs;
 use App\Models\Vacancy;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,7 +18,7 @@ final class VacancyFactory extends Factory
     {
         return [
             'code' => app(GeneratesVacanciesCodes::class)->generate(),
-            'slug' => app(GenerateVacancySlug::class)->generate(),
+            'slug' => app(GeneratesVacanciesSlugs::class)->generate(),
             'title' => $this->faker->jobTitle(),
             'description' => $this->faker->text(),
             'deadline' => now()->addWeek()->toDateTimeString(),

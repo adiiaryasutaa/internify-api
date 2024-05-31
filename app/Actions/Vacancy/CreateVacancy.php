@@ -6,6 +6,7 @@ namespace App\Actions\Vacancy;
 
 use App\Actions\Vacancy\Contracts\CreatesVacancies;
 use App\Actions\Vacancy\Contracts\GeneratesVacanciesCodes;
+use App\Actions\Vacancy\Contracts\GeneratesVacanciesSlugs;
 use App\Models\Company;
 use App\Models\Vacancy;
 use Illuminate\Support\Arr;
@@ -16,7 +17,7 @@ final class CreateVacancy implements CreatesVacancies
 
     public function __construct(
         Vacancy $vacancy,
-        protected GenerateVacancySlug $slugGenerator,
+        protected GeneratesVacanciesSlugs $slugGenerator,
         protected GeneratesVacanciesCodes $codesGenerator,
     )
     {
