@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Models\Concerns\CastTimestampsToDatetime;
+use App\Models\Concerns\SlugAsRouteKeyName;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,6 +19,7 @@ final class Company extends Model implements HasMedia
     use CastTimestampsToDatetime;
     use HasFactory;
     use InteractsWithMedia;
+    use SlugAsRouteKeyName;
 
     protected $fillable = [
         'employer_id',
@@ -37,11 +39,6 @@ final class Company extends Model implements HasMedia
     public function vacancies(): HasMany
     {
         return $this->hasMany(Vacancy::class);
-    }
-
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
     }
 
     public function registerMediaCollections(): void
