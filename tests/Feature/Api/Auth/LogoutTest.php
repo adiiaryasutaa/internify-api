@@ -19,6 +19,8 @@ final class LogoutTest extends TestCase
             ->asAdmin()
             ->for(Admin::factory()->owner(), 'userable')
             ->create();
+        $this->assertModelExists($user);
+        $this->assertModelExists($user->userable);
 
         $response = $this->postJson(route('login'), [
             'email' => $user->email,

@@ -55,14 +55,14 @@ final class AdminTest extends TestCase
         $this->assertModelExists($admin);
         $this->assertModelExists($admin->user);
 
-        $updateData = User::factory()->asAdmin()->withoutPassword()->raw();
-        $updateData['avatar'] = UploadedFile::fake()->image('avatar.png');
+        $data = User::factory()->asAdmin()->withoutPassword()->raw();
+        $data['avatar'] = UploadedFile::fake()->image('avatar.png');
 
-        $response = $this->putJson(route('admins.update', $admin), $updateData);
+        $response = $this->putJson(route('admins.update', $admin), $data);
 
         $response->assertOk();
         $response->assertJsonStructure(['message']);
-        $this->assertDatabaseHas('users', Arr::except($updateData, 'avatar'));
+        $this->assertDatabaseHas('users', Arr::except($data, 'avatar'));
     }
 
     public function test_delete_admin(): void

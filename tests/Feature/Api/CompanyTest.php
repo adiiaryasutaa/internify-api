@@ -11,7 +11,6 @@ use Database\Seeders\CompanySeeder;
 use Database\Seeders\EmployerSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Arr;
 use Tests\Feature\Api\Traits\ActingAsAdmin;
 use Tests\TestCase;
 
@@ -39,15 +38,15 @@ final class CompanyTest extends TestCase
         $this->assertModelExists($employer);
         $this->assertModelExists($employer->user);
 
-        $data = array_merge(Company::factory()->raw(), [
+        $data = Company::factory()->withoutCode()->withoutSlug()->raw();
+
+        $response = $this->postJson(route('companies.store'), array_merge($data, [
             'employer' => $employer->slug,
             'cover' => UploadedFile::fake()->image('cover.png'),
-        ]);
-
-        $response = $this->postJson(route('companies.store'), $data);
+        ]));
 
         $response->assertOk();
-        $this->assertDatabaseHas('companies', Arr::except($data, ['cover', 'employer']));
+        $this->assertDatabaseHas('companies', $data);
         $response->assertJsonStructure(['message']);
     }
 
@@ -75,14 +74,14 @@ final class CompanyTest extends TestCase
         $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
-        $data = array_merge(Company::factory()->withoutSlug()->raw(), [
-            'cover' => UploadedFile::fake()->image('cover.png'),
-        ]);
+        $data = Company::factory()->withoutCode()->withoutSlug()->raw();
 
-        $response = $this->putJson(route('companies.update', $company), $data);
+        $response = $this->putJson(route('companies.update', $company), array_merge($data, [
+            'cover' => UploadedFile::fake()->image('cover.png'),
+        ]));
 
         $response->assertOk();
-        $this->assertDatabaseHas('companies', Arr::except($data, ['cover']));
+        $this->assertDatabaseHas('companies', $data);
         $response->assertJsonStructure(['message']);
     }
 

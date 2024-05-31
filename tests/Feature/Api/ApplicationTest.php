@@ -16,7 +16,6 @@ use Database\Seeders\CompanySeeder;
 use Database\Seeders\EmployerSeeder;
 use Database\Seeders\VacancySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Arr;
 use Tests\Feature\Api\Traits\ActingAsAdmin;
 use Tests\TestCase;
 
@@ -49,20 +48,18 @@ final class ApplicationTest extends TestCase
         $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
-        $vacancy = Vacancy::factory()->for($company)->withSlug()->create();
+        $vacancy = Vacancy::factory()->for($company)->create();
         $this->assertModelExists($vacancy);
 
         $apprentice = Apprentice::factory()->has(User::factory()->asApprentice(), 'user')->create()->refresh();
         $this->assertModelExists($apprentice);
 
-        $data = Application::factory()->for($apprentice)->for($vacancy)->state([
+        $data = Application::factory()->for($apprentice)->for($vacancy)->withoutCode()->withoutSlug()->raw();
+
+        $response = $this->postJson(route('applications.store'), array_merge($data, [
             'vacancy' => $vacancy->slug,
             'apprentice' => $apprentice->slug,
-        ])->raw();
-
-        $response = $this->postJson(route('applications.store'), $data);
-
-        Arr::forget($data, ['vacancy', 'apprentice']);
+        ]));
 
         $response->assertOk();
         $this->assertDatabaseHas('applications', $data);
@@ -74,16 +71,16 @@ final class ApplicationTest extends TestCase
         $employer = Employer::factory()->has(User::factory()->asEmployer(), 'user')->create();
         $this->assertModelExists($employer);
 
-        $company = Company::factory()->for($employer)->withSlug()->create();
+        $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
-        $vacancy = Vacancy::factory()->for($company)->withSlug()->create();
+        $vacancy = Vacancy::factory()->for($company)->create();
         $this->assertModelExists($vacancy);
 
         $apprentice = Apprentice::factory()->has(User::factory()->asApprentice(), 'user')->create()->refresh();
         $this->assertModelExists($apprentice);
 
-        $application = Application::factory()->for($apprentice)->for($vacancy)->withSlug()->create();
+        $application = Application::factory()->for($apprentice)->for($vacancy)->create();
         $this->assertModelExists($application);
 
         $response = $this->getJson(route('applications.show', $application));
@@ -100,16 +97,16 @@ final class ApplicationTest extends TestCase
         $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
-        $vacancy = Vacancy::factory()->for($company)->withSlug()->create();
+        $vacancy = Vacancy::factory()->for($company)->create();
         $this->assertModelExists($vacancy);
 
         $apprentice = Apprentice::factory()->has(User::factory()->asApprentice(), 'user')->create()->refresh();
         $this->assertModelExists($apprentice);
 
-        $application = Application::factory()->for($apprentice)->for($vacancy)->withSlug()->create();
+        $application = Application::factory()->for($apprentice)->for($vacancy)->create();
         $this->assertModelExists($application);
 
-        $data = Application::factory()->raw();
+        $data = Application::factory()->withoutCode()->withoutSlug()->raw();
 
         $response = $this->putJson(route('applications.update', $application), $data);
 
@@ -127,13 +124,13 @@ final class ApplicationTest extends TestCase
         $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
-        $vacancy = Vacancy::factory()->for($company)->withSlug()->create();
+        $vacancy = Vacancy::factory()->for($company)->create();
         $this->assertModelExists($vacancy);
 
         $apprentice = Apprentice::factory()->has(User::factory()->asApprentice(), 'user')->create()->refresh();
         $this->assertModelExists($apprentice);
 
-        $application = Application::factory()->for($apprentice)->for($vacancy)->withSlug()->create();
+        $application = Application::factory()->for($apprentice)->for($vacancy)->create();
         $this->assertModelExists($application);
 
         $response = $this->deleteJson(route('applications.destroy', $application));

@@ -21,26 +21,26 @@ final class LoginTest extends TestCase
             ->asAdmin()
             ->for(Admin::factory()->owner(), 'userable')
             ->create();
+        $this->assertModelExists($user);
+        $this->assertModelExists($user->userable);
 
-        $response = $this->postJson('/api/v1/auth/login', [
+        $response = $this->postJson(route('login'), [
             'email' => $user->email,
             'password' => 'password',
         ]);
 
         $response->assertOk();
-
         $response->assertJsonStructure(['message', 'access_token', 'token_type']);
     }
 
     public function test_login_failed(): void
     {
-        $response = $this->postJson('/api/v1/auth/login', [
+        $response = $this->postJson(route('login'), [
             'email' => 'wrong@email.com',
             'password' => 'password',
         ]);
 
         $response->assertUnauthorized();
-
         $response->assertJsonStructure(['message']);
     }
 }
