@@ -20,7 +20,7 @@ final class UpdateApprentice implements UpdatesApprentices
         protected UpdatesUsers              $userUpdater,
         protected GeneratesApprenticesSlugs $slugGenerator,
     ) {
-        $this->fills = $apprentice->getFillable();
+        $this->fills = array_diff($apprentice->getFillable(), ['slug', 'code']);
     }
 
     public function update(Apprentice $apprentice, array $inputs): bool

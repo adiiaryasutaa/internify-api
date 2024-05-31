@@ -20,7 +20,7 @@ final class UpdateAdmin implements UpdatesAdmins
         protected UpdatesUsers         $userUpdater,
         protected GeneratesAdminsSlugs $slugGenerator,
     ) {
-        $this->fills = $admin->getFillable();
+        $this->fills = array_diff($admin->getFillable(), ['code']);
     }
 
     public function update(Admin $admin, array $inputs): bool

@@ -22,7 +22,7 @@ final class CreateApprentice implements CreatesApprentices
         protected GeneratesApprenticesCodes $codeGenerator,
         protected GeneratesApprenticesSlugs $slugGenerator,
     ) {
-        $this->fills = $apprentice->getFillable();
+        $this->fills = array_diff($apprentice->getFillable(), ['slug', 'code']);
     }
 
     public function create(array $inputs): Apprentice

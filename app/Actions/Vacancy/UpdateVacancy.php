@@ -10,11 +10,11 @@ use Illuminate\Support\Arr;
 
 final class UpdateVacancy implements UpdatesVacancies
 {
-    private array $fill = [];
+    private array $fill;
 
     public function __construct(Vacancy $vacancy)
     {
-        $this->fill = Arr::except($vacancy->getFillable(), ['company_id']);
+        $this->fill = array_diff($vacancy->getFillable(), ['code', 'slug', 'company_id']);
     }
 
     public function update(Vacancy $vacancy, array $inputs): bool

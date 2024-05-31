@@ -22,7 +22,7 @@ final class CreateEmployer implements CreatesEmployers
         protected GeneratesEmployersCodes $codeGenerator,
         protected GeneratesEmployersSlugs $slugGenerator,
     ) {
-        $this->fills = $employer->getFillable();
+        $this->fills = array_diff($employer->getFillable(), ['code', 'slug']);
     }
 
     public function create(array $inputs): Employer

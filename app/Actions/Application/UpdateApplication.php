@@ -14,7 +14,7 @@ final class UpdateApplication implements UpdatesApplications
 
     public function __construct(Application $application)
     {
-        $this->fills = Arr::except($application->getFillable(), ['apprentice_id', 'vacancy_id']);
+        $this->fills = array_diff($application->getFillable(), ['code', 'slug', 'apprentice_id', 'vacancy_id']);
     }
     public function update(Application $application, array $inputs): bool
     {

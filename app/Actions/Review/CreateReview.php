@@ -22,7 +22,7 @@ final class CreateReview implements CreatesReviews
         protected GeneratesReviewsCodes $codeGenerate,
     )
     {
-        $this->fills = Arr::except($review->getFillable(), ['apprentice_id', 'company_id']);
+        $this->fills = array_diff($review->getFillable(), ['code', 'slug', 'apprentice_id', 'company_id']);
     }
 
     public function create(Apprentice $apprentice, Company $company, array $inputs): Review

@@ -20,7 +20,7 @@ final class CreateVacancy implements CreatesVacancies
         protected GeneratesVacanciesCodes $codesGenerator,
     )
     {
-        $this->fill = Arr::except($vacancy->getFillable(), ['company_id', 'slug']);
+        $this->fill = array_diff($vacancy->getFillable(), ['code', 'slug', 'company_id', 'slug']);
     }
 
     public function create(Company $company, array $inputs): Vacancy

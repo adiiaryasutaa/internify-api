@@ -14,7 +14,7 @@ final class UpdateReview implements UpdatesReviews
 
     public function __construct(Review $review)
     {
-        $this->fills = Arr::except($review->getFillable(), ['apprentice_id', 'company_id']);
+        $this->fills = array_diff($review->getFillable(), ['code', 'slug', 'apprentice_id', 'company_id']);
     }
 
     public function update(Review $review, array $inputs): bool

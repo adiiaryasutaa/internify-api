@@ -23,7 +23,7 @@ final class CreateCompany implements CreatesCompanies
         protected GeneratesCompaniesCodes $codeGenerator,
     )
     {
-        $this->fills = Arr::except($company->getFillable(), ['slug', 'employer_id']);
+        $this->fills = array_diff($company->getFillable(), ['code', 'slug', 'employer_id']);
     }
 
     /**

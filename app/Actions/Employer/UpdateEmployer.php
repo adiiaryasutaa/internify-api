@@ -20,7 +20,7 @@ final class UpdateEmployer implements UpdatesEmployers
         protected UpdatesUsers            $userUpdater,
         protected GeneratesEmployersSlugs $slugGenerator,
     ) {
-        $this->fills = $employer->getFillable();
+        $this->fills = array_diff($employer->getFillable(), ['code', 'slug']);
     }
 
     public function update(Employer $employer, array $inputs)

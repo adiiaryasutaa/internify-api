@@ -21,7 +21,7 @@ final class CreateApplication implements CreatesApplications
         protected GeneratesApplicationsCodes $codeGenerator,
     )
     {
-        $this->fills = Arr::except($application->getFillable(), ['apprentice_id', 'vacancy_id']);
+        $this->fills = array_diff($application->getFillable(), ['apprentice_id', 'vacancy_id']);
     }
 
     public function create(Apprentice $apprentice, Vacancy $vacancy, array $inputs): Application
