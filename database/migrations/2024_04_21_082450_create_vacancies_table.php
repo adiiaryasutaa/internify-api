@@ -13,6 +13,7 @@ return new class () extends Migration {
         Schema::create('vacancies', function (Blueprint $table): void {
             $table->id();
             $table->string('slug');
+            $table->string('code')->unique();
             $table->foreignIdFor(Company::class)
                 ->constrained()
                 ->cascadeOnUpdate()

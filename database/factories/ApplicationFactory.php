@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Actions\Application\Contracts\GeneratesApplicationsCodes;
 use App\Actions\Application\GenerateApplicationSlug;
 use App\Enums\ApplicationStatus;
 use App\Models\Application;
@@ -15,6 +16,8 @@ final class ApplicationFactory extends Factory
     public function definition(): array
     {
         return [
+            'code' => app(GeneratesApplicationsCodes::class)->generate(),
+            'slug' => app(GenerateApplicationSlug::class)->generate(),
             'name' => $name = $this->faker->name(),
             'email' => sprintf('%s@%s', str($name)->lower()->replace(' ', '')->substr(0, 20)->toString(), 'gmail.com'),
             'phone' => $this->faker->numerify('0###########'),

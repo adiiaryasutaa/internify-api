@@ -14,6 +14,7 @@ return new class () extends Migration {
         Schema::create('applications', function (Blueprint $table): void {
             $table->id();
             $table->string('slug');
+            $table->string('code')->unique();
             $table->foreignIdFor(Vacancy::class)
                 ->constrained()
                 ->cascadeOnUpdate()

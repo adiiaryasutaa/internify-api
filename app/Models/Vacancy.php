@@ -17,6 +17,7 @@ final class Vacancy extends Model
     use SlugAsRouteKeyName;
 
     protected $fillable = [
+        'code',
         'slug',
         'company_id',
         'title',

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Actions\Company\Contracts\GeneratesCompaniesCodes;
 use App\Actions\Company\Contracts\GeneratesCompaniesSlugs;
 use App\Models\Company;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -16,6 +17,7 @@ final class CompanyFactory extends Factory
     public function definition(): array
     {
         return [
+            'code' => app(GeneratesCompaniesCodes::class)->generate(),
             'name' => $name = $this->faker->company(),
             'slug' => app(GeneratesCompaniesSlugs::class)->generate($name),
             'description' => $this->faker->realText(),

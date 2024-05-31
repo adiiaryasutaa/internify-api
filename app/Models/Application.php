@@ -19,6 +19,7 @@ final class Application extends Model
     use SlugAsRouteKeyName;
 
     protected $fillable = [
+        'code',
         'slug',
         'vacancy_id',
         'apprentice_id',

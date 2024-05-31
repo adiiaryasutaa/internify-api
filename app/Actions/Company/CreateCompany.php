@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Company;
 
 use App\Actions\Company\Contracts\CreatesCompanies;
+use App\Actions\Company\Contracts\GeneratesCompaniesCodes;
 use App\Actions\Company\Contracts\GeneratesCompaniesSlugs;
 use App\Models\Company;
 use App\Models\Employer;
@@ -16,7 +17,11 @@ final class CreateCompany implements CreatesCompanies
 {
     private array $fills;
 
-    public function __construct(Company $company, protected GeneratesCompaniesSlugs $slugGenerator)
+    public function __construct(
+        Company $company,
+        protected GeneratesCompaniesSlugs $slugGenerator,
+        protected GeneratesCompaniesCodes $codeGenerator,
+    )
     {
         $this->fills = Arr::except($company->getFillable(), ['slug', 'employer_id']);
     }
@@ -28,6 +33,7 @@ final class CreateCompany implements CreatesCompanies
     public function create(Employer $employer, array $inputs): Company
     {
         $data = Arr::only($inputs, $this->fills);
+        $data['code'] = $this->codeGenerator->generate();
         $data['slug'] = $this->slugGenerator->generate($data['name']);
 
         $cover = Arr::get($inputs, 'cover');

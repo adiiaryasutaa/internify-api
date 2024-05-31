@@ -14,6 +14,7 @@ return new class () extends Migration {
         Schema::create('reviews', function (Blueprint $table): void {
             $table->id();
             $table->string('slug');
+            $table->string('code')->unique();
             $table->foreignIdFor(Apprentice::class)
                 ->constrained()
                 ->cascadeOnUpdate()

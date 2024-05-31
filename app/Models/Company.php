@@ -22,8 +22,9 @@ final class Company extends Model implements HasMedia
     use SlugAsRouteKeyName;
 
     protected $fillable = [
-        'employer_id',
+        'code',
         'slug',
+        'employer_id',
         'name',
         'description',
         'address',

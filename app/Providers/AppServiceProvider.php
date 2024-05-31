@@ -16,10 +16,12 @@ use App\Actions\Admin\GenerateAdminSlug;
 use App\Actions\Admin\UpdateAdmin;
 use App\Actions\Application\Contracts\CreatesApplications;
 use App\Actions\Application\Contracts\DeletesApplications;
+use App\Actions\Application\Contracts\GeneratesApplicationsCodes;
 use App\Actions\Application\Contracts\GeneratesApplicationsSlugs;
 use App\Actions\Application\Contracts\UpdatesApplications;
 use App\Actions\Application\CreateApplication;
 use App\Actions\Application\DeleteApplication;
+use App\Actions\Application\GenerateApplicationCode;
 use App\Actions\Application\GenerateApplicationSlug;
 use App\Actions\Application\UpdateApplication;
 use App\Actions\Apprentice\Contracts\CreatesApprentices;
@@ -40,10 +42,12 @@ use App\Actions\Auth\LogoutUser;
 use App\Actions\Auth\RegisterUser;
 use App\Actions\Company\Contracts\CreatesCompanies;
 use App\Actions\Company\Contracts\DeletesCompanies;
+use App\Actions\Company\Contracts\GeneratesCompaniesCodes;
 use App\Actions\Company\Contracts\GeneratesCompaniesSlugs;
 use App\Actions\Company\Contracts\UpdatesCompanies;
 use App\Actions\Company\CreateCompany;
 use App\Actions\Company\DeleteCompany;
+use App\Actions\Company\GenerateCompanyCode;
 use App\Actions\Company\GenerateCompanySlug;
 use App\Actions\Company\UpdateCompany;
 use App\Actions\Employer\Contracts\CreatesEmployers;
@@ -58,10 +62,12 @@ use App\Actions\Employer\GenerateEmployerSlug;
 use App\Actions\Employer\UpdateEmployer;
 use App\Actions\Review\Contracts\CreatesReviews;
 use App\Actions\Review\Contracts\DeletesReviews;
+use App\Actions\Review\Contracts\GeneratesReviewsCodes;
 use App\Actions\Review\Contracts\GeneratesReviewsSlugs;
 use App\Actions\Review\Contracts\UpdatesReviews;
 use App\Actions\Review\CreateReview;
 use App\Actions\Review\DeleteReview;
+use App\Actions\Review\GenerateReviewCode;
 use App\Actions\Review\GenerateReviewSlug;
 use App\Actions\Review\UpdateReview;
 use App\Actions\User\Contracts\CreatesUsers;
@@ -72,10 +78,12 @@ use App\Actions\User\DeleteUser;
 use App\Actions\User\UpdateUser;
 use App\Actions\Vacancy\Contracts\CreatesVacancies;
 use App\Actions\Vacancy\Contracts\DeletesVacancies;
+use App\Actions\Vacancy\Contracts\GeneratesVacanciesCodes;
 use App\Actions\Vacancy\Contracts\GeneratesVacanciesSlugs;
 use App\Actions\Vacancy\Contracts\UpdatesVacancies;
 use App\Actions\Vacancy\CreateVacancy;
 use App\Actions\Vacancy\DeleteVacancy;
+use App\Actions\Vacancy\GenerateVacancyCode;
 use App\Actions\Vacancy\GenerateVacancySlug;
 use App\Actions\Vacancy\UpdateVacancy;
 use Illuminate\Auth\Access\Response;
@@ -112,21 +120,25 @@ final class AppServiceProvider extends ServiceProvider
         UpdatesCompanies::class => UpdateCompany::class,
         DeletesCompanies::class => DeleteCompany::class,
         GeneratesCompaniesSlugs::class => GenerateCompanySlug::class,
+        GeneratesCompaniesCodes::class => GenerateCompanyCode::class,
 
         CreatesVacancies::class => CreateVacancy::class,
         UpdatesVacancies::class => UpdateVacancy::class,
         DeletesVacancies::class => DeleteVacancy::class,
         GeneratesVacanciesSlugs::class => GenerateVacancySlug::class,
+        GeneratesVacanciesCodes::class => GenerateVacancyCode::class,
 
         CreatesApplications::class => CreateApplication::class,
         UpdatesApplications::class => UpdateApplication::class,
         DeletesApplications::class => DeleteApplication::class,
         GeneratesApplicationsSlugs::class => GenerateApplicationSlug::class,
+        GeneratesApplicationsCodes::class => GenerateApplicationCode::class,
 
         CreatesReviews::class => CreateReview::class,
         UpdatesReviews::class => UpdateReview::class,
         DeletesReviews::class => DeleteReview::class,
         GeneratesReviewsSlugs::class => GenerateReviewSlug::class,
+        GeneratesReviewsCodes::class => GenerateReviewCode::class,
 
         RegistersUsers::class => RegisterUser::class,
         AuthenticatesUsers::class => AuthenticateUser::class,

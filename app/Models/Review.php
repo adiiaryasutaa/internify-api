@@ -17,6 +17,7 @@ final class Review extends Model
     use SlugAsRouteKeyName;
 
     protected $fillable = [
+        'code',
         'slug',
         'apprentice_id',
         'company_id',
