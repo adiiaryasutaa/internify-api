@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Vacancy;
 
 use App\Actions\Vacancy\Contracts\GeneratesVacanciesCodes;
 
-class GenerateVacancyCode implements GeneratesVacanciesCodes
+final class GenerateVacancyCode implements GeneratesVacanciesCodes
 {
-	public function generate(): string
-	{
+    public function generate(): string
+    {
         return fake()->numerify('VA##########');
-	}
+    }
 }

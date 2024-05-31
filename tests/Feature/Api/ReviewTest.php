@@ -19,8 +19,8 @@ use Tests\TestCase;
 
 final class ReviewTest extends TestCase
 {
-    use RefreshDatabase;
     use ActingAsAdmin;
+    use RefreshDatabase;
 
     public function test_review_list(): void
     {

@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Company;
 
 use App\Actions\Company\Contracts\GeneratesCompaniesCodes;
 
-class GenerateCompanyCode implements GeneratesCompaniesCodes
+final class GenerateCompanyCode implements GeneratesCompaniesCodes
 {
-	public function generate(): string
-	{
+    public function generate(): string
+    {
         return fake()->numerify('CO##########');
-	}
+    }
 }
