@@ -27,10 +27,11 @@ final class CompanyFactory extends Factory
         ];
     }
 
-    /** @deprecated */
-    public function withSlug(): self
+    public function withoutCode(): self
     {
-        return $this->state(fn(array $attributes): array => ['slug' => app(GeneratesCompaniesSlugs::class)->generate()]);
+        $this->excepts[] = 'code';
+
+        return $this;
     }
 
     public function withoutSlug(): self

@@ -25,7 +25,6 @@ final class ApplicationSeeder extends Seeder
                 fn(Apprentice $apprentice) => Application::factory()
                     ->for($vacancy)
                     ->for($apprentice)
-                    ->withSlug()
                     ->make(),
             )->flatten();
         })->flatten(1);

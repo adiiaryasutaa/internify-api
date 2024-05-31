@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /** @extends Factory<Admin> */
 final class AdminFactory extends Factory
 {
+    use ExceptStates;
+
     public function definition(): array
     {
         return [
@@ -20,24 +22,22 @@ final class AdminFactory extends Factory
         ];
     }
 
-    public function withoutSlug(): self
+    public function withoutCode(): self
     {
-        $this->states->forget('slug');
+        $this->excepts[] = 'code';
 
         return $this;
     }
 
-    public function withoutCode(): self
+    public function withoutSlug(): self
     {
-        $this->states->forget('code');
+        $this->excepts[] = 'slug';
 
         return $this;
     }
 
     public function owner(): self
     {
-        return $this->state([
-            'is_owner' => true,
-        ]);
+        return $this->state(['is_owner' => true]);
     }
 }

@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /** @extends Factory<Review> */
 final class ReviewFactory extends Factory
 {
+    use ExceptStates;
+
     public function definition(): array
     {
         return [
@@ -22,8 +24,17 @@ final class ReviewFactory extends Factory
         ];
     }
 
-    public function withSlug(): self
+    public function withoutCode(): self
     {
-        return $this->state(['slug' => app(GeneratesReviewsSlugs::class)->generate()]);
+        $this->excepts[] = 'code';
+
+        return $this;
+    }
+
+    public function withoutSlug(): self
+    {
+        $this->excepts[] = 'slug';
+
+        return $this;
     }
 }

@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /** @extends Factory<Vacancy> */
 final class VacancyFactory extends Factory
 {
+    use ExceptStates;
+
     public function definition(): array
     {
         return [
@@ -25,8 +27,17 @@ final class VacancyFactory extends Factory
         ];
     }
 
-    public function withSlug(): self
+    public function withoutCode(): self
     {
-        return $this->state(['slug' => app(GenerateVacancySlug::class)->generate()]);
+        $this->excepts[] = 'code';
+
+        return $this;
+    }
+
+    public function withoutSlug(): self
+    {
+        $this->excepts[] = 'slug';
+
+        return $this;
     }
 }

@@ -25,7 +25,6 @@ final class ReviewSeeder extends Seeder
                 fn(Apprentice $apprentice) => Review::factory()
                     ->for($apprentice)
                     ->for($company)
-                    ->withSlug()
                     ->make(),
             )->flatten();
         })->flatten(1);

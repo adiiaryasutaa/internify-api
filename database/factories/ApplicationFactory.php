@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /** @extends Factory<Application> */
 final class ApplicationFactory extends Factory
 {
+    use ExceptStates;
+
     public function definition(): array
     {
         return [
@@ -26,9 +28,18 @@ final class ApplicationFactory extends Factory
         ];
     }
 
-    public function withSlug(): self
+    public function withoutCode(): self
     {
-        return $this->state(['slug' => app(GenerateApplicationSlug::class)->generate()]);
+        $this->excepts[] = 'code';
+
+        return $this;
+    }
+
+    public function withoutSlug(): self
+    {
+        $this->excepts[] = 'slug';
+
+        return $this;
     }
 
     public function pending(): self

@@ -20,7 +20,6 @@ final class VacancySeeder extends Seeder
             return Vacancy::factory()
                 ->for($company)
                 ->count($count)
-                ->withSlug()
                 ->make();
         })->flatten(1);
 
