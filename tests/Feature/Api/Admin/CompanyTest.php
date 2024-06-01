@@ -2,109 +2,102 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Api;
+namespace Api\Admin;
 
 use App\Models\Company;
 use App\Models\Employer;
 use App\Models\User;
-use App\Models\Vacancy;
 use Database\Seeders\CompanySeeder;
 use Database\Seeders\EmployerSeeder;
-use Database\Seeders\VacancySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\Feature\Api\Traits\ActingAsAdmin;
+use Illuminate\Http\UploadedFile;
+use Tests\Feature\Api\Admin\Traits\ActingAsAdmin;
 use Tests\TestCase;
 
-final class VacancyTest extends TestCase
+final class CompanyTest extends TestCase
 {
     use ActingAsAdmin;
     use RefreshDatabase;
 
-    public function test_vacancy_list(): void
+    public function test_company_list(): void
     {
         $this->seed([
             EmployerSeeder::class,
             CompanySeeder::class,
-            VacancySeeder::class,
         ]);
 
-        $response = $this->getJson(route('vacancies.index'));
+        $response = $this->getJson(route('admin.companies.index'));
 
         $response->assertOk();
         $response->assertJsonCount(15, 'data');
     }
 
-    public function test_create_vacancy(): void
+    public function test_create_company(): void
     {
         $employer = Employer::factory()->has(User::factory()->asEmployer(), 'user')->create();
         $this->assertModelExists($employer);
+        $this->assertModelExists($employer->user);
 
-        $company = Company::factory()->for($employer)->create();
-        $this->assertModelExists($company);
+        $data = Company::factory()->withoutCode()->withoutSlug()->raw();
 
-        $data = Vacancy::factory()->for($company)->withoutCode()->withoutSlug()->raw();
-
-        $response = $this->postJson(route('vacancies.store'), array_merge($data, [
-            'company' => $company->code,
+        $response = $this->postJson(route('admin.companies.store'), array_merge($data, [
+            'employer' => $employer->code,
+            'cover' => UploadedFile::fake()->image('cover.png'),
         ]));
 
         $response->assertOk();
-        $this->assertDatabaseHas('vacancies', $data);
+        $this->assertDatabaseHas('companies', $data);
         $response->assertJsonStructure(['message']);
     }
 
-    public function test_show_vacancy(): void
+    public function test_show_company(): void
     {
         $employer = Employer::factory()->has(User::factory()->asEmployer(), 'user')->create();
         $this->assertModelExists($employer);
+        $this->assertModelExists($employer->user);
 
         $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
-        $vacancy = Vacancy::factory()->for($company)->create();
-        $this->assertModelExists($vacancy);
-
-        $response = $this->getJson(route('vacancies.show', $vacancy));
+        $response = $this->getJson(route('admin.companies.show', $company));
 
         $response->assertOk();
         $response->assertJsonStructure(['data']);
     }
 
-    public function test_update_vacancy(): void
+    public function test_update_company(): void
     {
         $employer = Employer::factory()->has(User::factory()->asEmployer(), 'user')->create();
         $this->assertModelExists($employer);
+        $this->assertModelExists($employer->user);
 
         $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
-        $vacancy = Vacancy::factory()->for($company)->create();
-        $this->assertModelExists($vacancy);
+        $data = Company::factory()->withoutCode()->withoutSlug()->raw();
 
-        $data = Vacancy::factory()->withoutCode()->withoutSlug()->raw();
-
-        $response = $this->putJson(route('vacancies.update', $vacancy), $data);
+        $response = $this->putJson(route('admin.companies.update', $company), array_merge($data, [
+            'cover' => UploadedFile::fake()->image('cover.png'),
+        ]));
 
         $response->assertOk();
+        $this->assertDatabaseHas('companies', $data);
         $response->assertJsonStructure(['message']);
-        $this->assertDatabaseHas('vacancies', array_merge($vacancy->toArray(), $data));
     }
 
-    public function test_delete_vacancy(): void
+    public function test_delete_company(): void
     {
         $employer = Employer::factory()->has(User::factory()->asEmployer(), 'user')->create();
         $this->assertModelExists($employer);
+        $this->assertModelExists($employer->user);
 
         $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
-        $vacancy = Vacancy::factory()->for($company)->create();
-        $this->assertModelExists($vacancy);
-
-        $response = $this->deleteJson(route('vacancies.destroy', $vacancy));
+        $response = $this->deleteJson(route('admin.companies.destroy', $company));
 
         $response->assertOk();
         $response->assertJsonStructure(['message']);
-        $this->assertModelMissing($vacancy);
+        $this->assertModelMissing($company);
     }
 }

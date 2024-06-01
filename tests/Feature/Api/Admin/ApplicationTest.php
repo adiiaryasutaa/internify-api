@@ -2,42 +2,45 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Api;
+namespace Api\Admin;
 
+use App\Models\Application;
 use App\Models\Apprentice;
 use App\Models\Company;
 use App\Models\Employer;
-use App\Models\Review;
 use App\Models\User;
+use App\Models\Vacancy;
+use Database\Seeders\ApplicationSeeder;
 use Database\Seeders\ApprenticeSeeder;
 use Database\Seeders\CompanySeeder;
 use Database\Seeders\EmployerSeeder;
-use Database\Seeders\ReviewSeeder;
+use Database\Seeders\VacancySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\Feature\Api\Traits\ActingAsAdmin;
+use Tests\Feature\Api\Admin\Traits\ActingAsAdmin;
 use Tests\TestCase;
 
-final class ReviewTest extends TestCase
+final class ApplicationTest extends TestCase
 {
     use ActingAsAdmin;
     use RefreshDatabase;
 
-    public function test_review_list(): void
+    public function test_application_list(): void
     {
         $this->seed([
             EmployerSeeder::class,
             ApprenticeSeeder::class,
             CompanySeeder::class,
-            ReviewSeeder::class,
+            VacancySeeder::class,
+            ApplicationSeeder::class,
         ]);
 
-        $response = $this->getJson(route('reviews.index'));
+        $response = $this->getJson(route('admin.applications.index'));
 
         $response->assertOk();
         $response->assertJsonCount(15, 'data');
     }
 
-    public function test_create_review(): void
+    public function test_create_application(): void
     {
         $employer = Employer::factory()->has(User::factory()->asEmployer(), 'user')->create();
         $this->assertModelExists($employer);
@@ -45,22 +48,25 @@ final class ReviewTest extends TestCase
         $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
+        $vacancy = Vacancy::factory()->for($company)->create();
+        $this->assertModelExists($vacancy);
+
         $apprentice = Apprentice::factory()->has(User::factory()->asApprentice(), 'user')->create()->refresh();
         $this->assertModelExists($apprentice);
 
-        $data = Review::factory()->for($apprentice)->for($company)->withoutCode()->withoutSlug()->raw();
+        $data = Application::factory()->for($apprentice)->for($vacancy)->withoutCode()->withoutSlug()->raw();
 
-        $response = $this->postJson(route('reviews.store'), array_merge($data, [
-            'company' => $company->code,
+        $response = $this->postJson(route('admin.applications.store'), array_merge($data, [
+            'vacancy' => $vacancy->code,
             'apprentice' => $apprentice->code,
         ]));
 
         $response->assertOk();
-        $this->assertDatabaseHas('reviews', $data);
+        $this->assertDatabaseHas('applications', $data);
         $response->assertJsonStructure(['message']);
     }
 
-    public function test_show_review(): void
+    public function test_show_application(): void
     {
         $employer = Employer::factory()->has(User::factory()->asEmployer(), 'user')->create();
         $this->assertModelExists($employer);
@@ -68,19 +74,22 @@ final class ReviewTest extends TestCase
         $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
+        $vacancy = Vacancy::factory()->for($company)->create();
+        $this->assertModelExists($vacancy);
+
         $apprentice = Apprentice::factory()->has(User::factory()->asApprentice(), 'user')->create()->refresh();
         $this->assertModelExists($apprentice);
 
-        $review = Review::factory()->for($apprentice)->for($company)->create();
-        $this->assertModelExists($review);
+        $application = Application::factory()->for($apprentice)->for($vacancy)->create();
+        $this->assertModelExists($application);
 
-        $response = $this->getJson(route('reviews.show', $review));
+        $response = $this->getJson(route('admin.applications.show', $application));
 
         $response->assertOk();
         $response->assertJsonStructure(['data']);
     }
 
-    public function test_update_review(): void
+    public function test_update_application(): void
     {
         $employer = Employer::factory()->has(User::factory()->asEmployer(), 'user')->create();
         $this->assertModelExists($employer);
@@ -88,22 +97,26 @@ final class ReviewTest extends TestCase
         $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
+        $vacancy = Vacancy::factory()->for($company)->create();
+        $this->assertModelExists($vacancy);
+
         $apprentice = Apprentice::factory()->has(User::factory()->asApprentice(), 'user')->create()->refresh();
         $this->assertModelExists($apprentice);
 
-        $review = Review::factory()->for($apprentice)->for($company)->create();
-        $this->assertModelExists($review);
+        $application = Application::factory()->for($apprentice)->for($vacancy)->create();
+        $this->assertModelExists($application);
 
-        $data = Review::factory()->withoutCode()->withoutSlug()->raw();
+        $data = Application::factory()->withoutCode()->withoutSlug()->raw();
 
-        $response = $this->putJson(route('reviews.update', $review), $data);
+        $response = $this->putJson(route('admin.applications.update', $application), $data);
 
         $response->assertOk();
         $response->assertJsonStructure(['message']);
-        $this->assertDatabaseHas('reviews', array_merge($review->toArray(), $data));
+
+        $this->assertDatabaseHas('applications', array_merge($application->toArray(), $data));
     }
 
-    public function test_delete_review(): void
+    public function test_delete_application(): void
     {
         $employer = Employer::factory()->has(User::factory()->asEmployer(), 'user')->create();
         $this->assertModelExists($employer);
@@ -111,17 +124,20 @@ final class ReviewTest extends TestCase
         $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
+        $vacancy = Vacancy::factory()->for($company)->create();
+        $this->assertModelExists($vacancy);
+
         $apprentice = Apprentice::factory()->has(User::factory()->asApprentice(), 'user')->create()->refresh();
         $this->assertModelExists($apprentice);
 
-        $review = Review::factory()->for($apprentice)->for($company)->create();
-        $this->assertModelExists($review);
+        $application = Application::factory()->for($apprentice)->for($vacancy)->create();
+        $this->assertModelExists($application);
 
-        $response = $this->deleteJson(route('reviews.destroy', $review));
+        $response = $this->deleteJson(route('admin.applications.destroy', $application));
 
         $response->assertOk();
         $response->assertJsonStructure(['message']);
 
-        $this->assertModelMissing($review);
+        $this->assertModelMissing($application);
     }
 }

@@ -15,6 +15,7 @@ use App\Http\Resources\ApplicationResource;
 use App\Models\Application;
 use App\Models\Apprentice;
 use App\Models\Vacancy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Throwable;
@@ -28,16 +29,34 @@ final class ApplicationController extends Controller
 
     public function index(Request $request): ApplicationCollection
     {
-        return ApplicationCollection::make(Application::paginate(
-            perPage: $request->integer('per-page', null),
-        ));
+        $perPage = $request->integer('per-page', null);
+
+        $user = $request->user();
+
+        $applications = Application::query()
+            ->when($user->role->isEmployer(), function (Builder $query) use ($user): void {
+                $company = $user->loadMissing('userable.company')->userable->company;
+
+                $query->whereRelation('vacancy.company', 'id', $company->id);
+            })
+            ->when($user->role->isApprentice(), fn(Builder $query) => $query->whereApprenticeId($user->userable->id))
+            ->latest()
+            ->paginate($perPage);
+
+        return ApplicationCollection::make($applications);
     }
 
     public function store(CreatesApplications $creator, StoreApplicationRequest $request): JsonResponse
     {
+        $user = $request->user();
         $request = $request->validated();
 
-        $apprentice = Apprentice::whereCode($request['apprentice'])->firstOrFail(['id', 'slug']);
+        if ($user->role->isAdmin()) {
+            $apprentice = Apprentice::whereCode($request['apprentice'])->firstOrFail(['id', 'slug']);
+        } else {
+            $apprentice = $user->userable;
+        }
+
         $vacancy = Vacancy::whereCode($request['vacancy'])->firstOrFail(['id', 'slug']);
 
         $creator->create($apprentice, $vacancy, $request);
@@ -62,7 +81,6 @@ final class ApplicationController extends Controller
         return response()->json([
             'message' => __('response.application.update.success'),
         ]);
-
     }
 
     /**

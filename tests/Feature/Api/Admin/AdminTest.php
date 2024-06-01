@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Api;
+namespace Api\Admin;
 
 use App\Models\Admin;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
-use Tests\Feature\Api\Traits\ActingAsAdmin;
+use Tests\Feature\Api\Admin\Traits\ActingAsAdmin;
 use Tests\TestCase;
 
 final class AdminTest extends TestCase
@@ -20,7 +20,7 @@ final class AdminTest extends TestCase
     public function test_admin_list(): void
     {
         Admin::factory()->count(20)->has(User::factory()->asAdmin(), 'user')->create();
-        $response = $this->getJson(route('admins.index'));
+        $response = $this->getJson(route('admin.admins.index'));
 
         $response->assertOk();
         $response->assertJsonCount(15, 'data');
@@ -30,7 +30,7 @@ final class AdminTest extends TestCase
     {
         $data = User::factory()->unsafePassword()->raw();
 
-        $response = $this->postJson(route('admins.store'), $data);
+        $response = $this->postJson(route('admin.admins.store'), $data);
 
         $response->assertOk();
         $this->assertDatabaseHas('users', Arr::except($data, ['password']));
@@ -43,7 +43,7 @@ final class AdminTest extends TestCase
         $this->assertModelExists($admin);
         $this->assertModelExists($admin->user);
 
-        $response = $this->getJson(route('admins.show', $admin));
+        $response = $this->getJson(route('admin.admins.show', $admin));
 
         $response->assertOk();
         $response->assertJsonStructure(['data']);
@@ -58,7 +58,7 @@ final class AdminTest extends TestCase
         $data = User::factory()->asAdmin()->withoutPassword()->raw();
         $data['avatar'] = UploadedFile::fake()->image('avatar.png');
 
-        $response = $this->putJson(route('admins.update', $admin), $data);
+        $response = $this->putJson(route('admin.admins.update', $admin), $data);
 
         $response->assertOk();
         $response->assertJsonStructure(['message']);
@@ -71,7 +71,7 @@ final class AdminTest extends TestCase
         $this->assertModelExists($admin);
         $this->assertModelExists($admin->user);
 
-        $response = $this->deleteJson(route('admins.destroy', $admin));
+        $response = $this->deleteJson(route('admin.admins.destroy', $admin));
 
         $response->assertOk();
         $response->assertJsonStructure(['message']);

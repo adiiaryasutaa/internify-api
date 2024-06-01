@@ -10,7 +10,6 @@ use App\Models\Concerns\SlugAsRouteKeyName;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 final class Application extends Model
 {
@@ -42,11 +41,6 @@ final class Application extends Model
     public function vacancy(): BelongsTo
     {
         return $this->belongsTo(Vacancy::class);
-    }
-
-    public function company(): HasOneThrough
-    {
-        return $this->hasOneThrough(Company::class, Vacancy::class);
     }
 
     protected function casts(): array

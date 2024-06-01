@@ -2,20 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Api\Auth;
+namespace Api\Admin\Auth;
 
 use App\Models\Admin;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-final class LoginTest extends TestCase
+final class LogoutTest extends TestCase
 {
     use RefreshDatabase;
-    use WithFaker;
 
-    public function test_login(): void
+    public function test_logout(): void
     {
         $user = User::factory()
             ->asAdmin()
@@ -31,14 +29,19 @@ final class LoginTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonStructure(['message', 'access_token', 'token_type']);
+
+        $token = $response->original['access_token'];
+        $response = $this->postJson(route('logout'), headers: [
+            'Authorization' => "Bearer {$token}",
+        ]);
+
+        $response->assertOk();
+        $response->assertJsonStructure(['message']);
     }
 
-    public function test_login_failed(): void
+    public function test_logout_failed(): void
     {
-        $response = $this->postJson(route('login'), [
-            'email' => 'wrong@email.com',
-            'password' => 'password',
-        ]);
+        $response = $this->postJson(route('logout'));
 
         $response->assertUnauthorized();
         $response->assertJsonStructure(['message']);

@@ -42,6 +42,11 @@ final class Company extends Model implements HasMedia
         return $this->hasMany(Vacancy::class);
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
     public function registerMediaCollections(): void
     {
         $this

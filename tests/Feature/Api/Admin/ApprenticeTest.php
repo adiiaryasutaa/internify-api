@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Api;
+namespace Api\Admin;
 
 use App\Models\Apprentice;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
-use Tests\Feature\Api\Traits\ActingAsAdmin;
+use Tests\Feature\Api\Admin\Traits\ActingAsAdmin;
 use Tests\TestCase;
 
 final class ApprenticeTest extends TestCase
@@ -21,7 +21,7 @@ final class ApprenticeTest extends TestCase
     {
         Apprentice::factory()->count(20)->has(User::factory()->asApprentice(), 'user')->create();
 
-        $response = $this->getJson(route('apprentices.index'));
+        $response = $this->getJson(route('admin.apprentices.index'));
 
         $response->assertOk();
         $response->assertJsonCount(15, 'data');
@@ -31,7 +31,7 @@ final class ApprenticeTest extends TestCase
     {
         $data = User::factory()->unsafePassword()->raw();
 
-        $response = $this->postJson(route('apprentices.store'), $data);
+        $response = $this->postJson(route('admin.apprentices.store'), $data);
 
         $response->assertOk();
         $this->assertDatabaseHas('users', Arr::except($data, ['password']));
@@ -44,7 +44,7 @@ final class ApprenticeTest extends TestCase
         $this->assertModelExists($apprentice);
         $this->assertModelExists($apprentice->user);
 
-        $response = $this->getJson(route('apprentices.show', $apprentice));
+        $response = $this->getJson(route('admin.apprentices.show', $apprentice));
 
         $response->assertOk();
         $response->assertJsonStructure(['data']);
@@ -59,7 +59,7 @@ final class ApprenticeTest extends TestCase
         $updateData = User::factory()->asApprentice()->withoutPassword()->raw();
         $updateData['avatar'] = UploadedFile::fake()->image('avatar.png');
 
-        $response = $this->putJson(route('apprentices.update', $apprentice), $updateData);
+        $response = $this->putJson(route('admin.apprentices.update', $apprentice), $updateData);
 
         $response->assertOk();
         $response->assertJsonStructure(['message']);
@@ -72,7 +72,7 @@ final class ApprenticeTest extends TestCase
         $this->assertModelExists($apprentice);
         $this->assertModelExists($apprentice->user);
 
-        $response = $this->deleteJson(route('apprentices.destroy', $apprentice));
+        $response = $this->deleteJson(route('admin.apprentices.destroy', $apprentice));
 
         $response->assertOk();
         $response->assertJsonStructure(['message']);

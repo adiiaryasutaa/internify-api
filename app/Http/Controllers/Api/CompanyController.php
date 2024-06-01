@@ -25,13 +25,26 @@ final class CompanyController extends Controller
         $this->authorizeResource(Company::class, 'company');
     }
 
+    /**
+     * @param Request $request
+     * @return CompanyCollection
+     */
+    // Role: All
     public function index(Request $request): CompanyCollection
     {
-        return CompanyCollection::make(Company::paginate(
-            perPage: $request->integer('per-page', null),
-        ));
+        $perPage = $request->integer('per-page', null);
+
+        $companies = Company::paginate($perPage);
+
+        return CompanyCollection::make($companies);
     }
 
+    /**
+     * @param CreatesCompanies $creator
+     * @param StoreCompanyRequest $request
+     * @return JsonResponse
+     */
+    // Role: Admin
     public function store(CreatesCompanies $creator, StoreCompanyRequest $request): JsonResponse
     {
         $request = $request->validated();
@@ -45,14 +58,24 @@ final class CompanyController extends Controller
         ]);
     }
 
+    /**
+     * @param Company $company
+     * @return CompanyResource
+     */
+    // Role: All
     public function show(Company $company): CompanyResource
     {
         return CompanyResource::make($company);
     }
 
     /**
+     * @param UpdatesCompanies $updater
+     * @param UpdateCompanyRequest $request
+     * @param Company $company
+     * @return JsonResponse
      * @throws Throwable
      */
+    // Role: Admin & Employer
     public function update(UpdatesCompanies $updater, UpdateCompanyRequest $request, Company $company): JsonResponse
     {
         throw_unless($updater->update($company, $request->validated()));
@@ -63,8 +86,12 @@ final class CompanyController extends Controller
     }
 
     /**
+     * @param DeletesCompanies $deleter
+     * @param Company $company
+     * @return JsonResponse
      * @throws Throwable
      */
+    // Role: Admin
     public function destroy(DeletesCompanies $deleter, Company $company): JsonResponse
     {
         throw_unless($deleter->delete($company));

@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Models\Company;
 use App\Models\Review;
 use App\Models\User;
 
 final class ReviewPolicy
 {
-    public function viewAny(User $user): bool
+    public function viewAny(User $user, ?Company $company = null): bool
     {
         return true;
     }
 
-    public function view(User $user, Review $review): bool
+    public function view(User $user, Review $review, ?Company $company = null): bool
     {
         if ($user->role->isAdmin()) {
             return true;
@@ -33,12 +34,12 @@ final class ReviewPolicy
         return $review->apprentice->is($user->userable);
     }
 
-    public function create(User $user): bool
+    public function create(User $user, ?Company $company = null): bool
     {
         return $user->role->is(['admin', 'apprentice']);
     }
 
-    public function update(User $user, Review $review): bool
+    public function update(User $user, Review $review, ?Company $company = null): bool
     {
         if ($user->role->isAdmin()) {
             return true;
@@ -54,17 +55,17 @@ final class ReviewPolicy
         return false;
     }
 
-    public function delete(User $user, Review $review): bool
+    public function delete(User $user, Review $review, ?Company $company = null): bool
     {
         return $this->update($user, $review);
     }
 
-    public function restore(User $user, Review $review): bool
+    public function restore(User $user, Review $review, ?Company $company = null): bool
     {
         return $user->role->isAdmin();
     }
 
-    public function forceDelete(User $user, Review $review): bool
+    public function forceDelete(User $user, Review $review, ?Company $company = null): bool
     {
         return false;
     }

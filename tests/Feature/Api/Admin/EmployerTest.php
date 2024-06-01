@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Api;
+namespace Api\Admin;
 
 use App\Models\Employer;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
-use Tests\Feature\Api\Traits\ActingAsAdmin;
+use Tests\Feature\Api\Admin\Traits\ActingAsAdmin;
 use Tests\TestCase;
 
 final class EmployerTest extends TestCase
@@ -21,7 +21,7 @@ final class EmployerTest extends TestCase
     {
         Employer::factory()->count(20)->has(User::factory()->asEmployer(), 'user')->create();
 
-        $response = $this->getJson(route('employers.index'));
+        $response = $this->getJson(route('admin.employers.index'));
 
         $response->assertOk();
         $response->assertJsonCount(15, 'data');
@@ -31,7 +31,7 @@ final class EmployerTest extends TestCase
     {
         $data = User::factory()->unsafePassword()->raw();
 
-        $response = $this->postJson(route('employers.store'), $data);
+        $response = $this->postJson(route('admin.employers.store'), $data);
 
         $response->assertOk();
         $this->assertDatabaseHas('users', Arr::except($data, ['password']));
@@ -44,7 +44,7 @@ final class EmployerTest extends TestCase
         $this->assertModelExists($employer);
         $this->assertModelExists($employer->user);
 
-        $response = $this->getJson(route('employers.show', $employer));
+        $response = $this->getJson(route('admin.employers.show', $employer));
 
         $response->assertOk();
         $response->assertJsonStructure(['data']);
@@ -59,7 +59,7 @@ final class EmployerTest extends TestCase
         $updateData = User::factory()->asEmployer()->withoutPassword()->raw();
         $updateData['avatar'] = UploadedFile::fake()->image('avatar.png');
 
-        $response = $this->putJson(route('employers.update', $employer), $updateData);
+        $response = $this->putJson(route('admin.employers.update', $employer), $updateData);
 
         $response->assertOk();
         $response->assertJsonStructure(['message']);
@@ -72,7 +72,7 @@ final class EmployerTest extends TestCase
         $this->assertModelExists($employer);
         $this->assertModelExists($employer->user);
 
-        $response = $this->deleteJson(route('employers.destroy', $employer));
+        $response = $this->deleteJson(route('admin.employers.destroy', $employer));
 
         $response->assertOk();
         $response->assertJsonStructure(['message']);

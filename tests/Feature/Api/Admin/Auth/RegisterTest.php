@@ -2,15 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Api\Auth;
+namespace Api\Admin\Auth;
 
 use App\Enums\Role;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-
-use function str;
-
 use Tests\TestCase;
+use function str;
 
 final class RegisterTest extends TestCase
 {

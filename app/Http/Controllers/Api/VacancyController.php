@@ -62,7 +62,6 @@ final class VacancyController extends Controller
         return response()->json([
             'message' => __('response.vacancy.update.success'),
         ]);
-
     }
 
     /**
