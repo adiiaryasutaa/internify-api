@@ -40,6 +40,16 @@ use App\Actions\Auth\Contracts\LogoutsUsers;
 use App\Actions\Auth\Contracts\RegistersUsers;
 use App\Actions\Auth\LogoutUser;
 use App\Actions\Auth\RegisterUser;
+use App\Actions\Category\Contracts\CreatesCategories;
+use App\Actions\Category\Contracts\DeletesCategories;
+use App\Actions\Category\Contracts\GeneratesCategoriesCodes;
+use App\Actions\Category\Contracts\GeneratesCategoriesSlugs;
+use App\Actions\Category\Contracts\UpdatesCategories;
+use App\Actions\Category\CreateCategory;
+use App\Actions\Category\DeleteCategory;
+use App\Actions\Category\GenerateCategoryCode;
+use App\Actions\Category\GenerateCategorySlug;
+use App\Actions\Category\UpdateCategory;
 use App\Actions\Company\Contracts\CreatesCompanies;
 use App\Actions\Company\Contracts\DeletesCompanies;
 use App\Actions\Company\Contracts\GeneratesCompaniesCodes;
@@ -121,6 +131,12 @@ final class AppServiceProvider extends ServiceProvider
         DeletesCompanies::class => DeleteCompany::class,
         GeneratesCompaniesSlugs::class => GenerateCompanySlug::class,
         GeneratesCompaniesCodes::class => GenerateCompanyCode::class,
+
+        CreatesCategories::class => CreateCategory::class,
+        UpdatesCategories::class => UpdateCategory::class,
+        DeletesCategories::class => DeleteCategory::class,
+        GeneratesCategoriesSlugs::class => GenerateCategorySlug::class,
+        GeneratesCategoriesCodes::class => GenerateCategoryCode::class,
 
         CreatesVacancies::class => CreateVacancy::class,
         UpdatesVacancies::class => UpdateVacancy::class,

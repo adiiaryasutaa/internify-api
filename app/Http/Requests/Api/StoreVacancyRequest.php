@@ -19,6 +19,7 @@ final class StoreVacancyRequest extends FormRequest
     {
         return [
             'company' => [Rule::requiredIf($this->user()->role->isAdmin()), 'string', 'exists:companies,code'],
+            'category' => ['required', 'string', 'exists:categories,code'],
             'title' => ['required', 'string', 'min:5', 'max:255'],
             'description' => ['required', 'string', 'min:50'],
             'location' => ['required', 'string', 'min:10'],

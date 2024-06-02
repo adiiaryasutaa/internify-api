@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Api\Apprentice;
 
+use App\Models\Category;
 use App\Models\Company;
 use App\Models\Employer;
 use App\Models\User;
@@ -26,7 +27,10 @@ final class CompanyVacancyTest extends TestCase
         $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
-        Vacancy::factory()->for($company)->count(20)->create();
+        $category = Category::factory()->create();
+        $this->assertModelExists($category);
+
+        Vacancy::factory()->for($company)->for($category)->count(20)->create();
 
         $response = $this->getJson(route('companies.vacancies.index', $company));
 

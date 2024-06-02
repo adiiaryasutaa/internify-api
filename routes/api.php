@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ApprenticeController;
 use App\Http\Controllers\Api\Auth\LoginController;
 use App\Http\Controllers\Api\Auth\LogoutController;
 use App\Http\Controllers\Api\Auth\RegisterController;
+use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CompanyController;
 use App\Http\Controllers\Api\CompanyReviewController;
 use App\Http\Controllers\Api\CompanyVacancyController;
@@ -34,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
             Route::apiResource('employers', EmployerController::class);
             Route::apiResource('apprentices', ApprenticeController::class);
             Route::apiResource('companies', CompanyController::class);
+            Route::apiResource('categories', CategoryController::class);
             Route::apiResource('vacancies', VacancyController::class);
             Route::apiResource('applications', ApplicationController::class);
             Route::apiResource('reviews', ReviewController::class);
@@ -43,6 +45,8 @@ Route::middleware('auth:sanctum')->group(function (): void {
         Route::apiResource('companies', CompanyController::class)->only(['index', 'show']);
         Route::apiResource('companies.vacancies', CompanyVacancyController::class)->only(['index']);
         Route::apiResource('companies.reviews', CompanyReviewController::class)->except(['show']);
+
+        Route::apiResource('categories', CategoryController::class)->only(['index', 'show']);
 
         Route::apiResource('vacancies', VacancyController::class);
         Route::apiResource('vacancies.applications', VacancyApplicationController::class)->except(['update', 'destroy']);

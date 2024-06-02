@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Api\Apprentice;
 
 use App\Models\Application;
+use App\Models\Category;
 use App\Models\Company;
 use App\Models\Employer;
 use App\Models\User;
@@ -28,7 +29,10 @@ final class ApplicationTest extends TestCase
         $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
-        $vacancies = Vacancy::factory()->count(20)->for($company)->create();
+        $category = Category::factory()->create();
+        $this->assertModelExists($category);
+
+        $vacancies = Vacancy::factory()->count(20)->for($company)->for($category)->create();
         $vacancies->each(fn(Vacancy $vacancy) => $this->assertModelExists($vacancy));
 
         $applications = $vacancies->map(fn(Vacancy $vacancy) => Application::factory()->for($this->apprentice)->for($vacancy)->make());
@@ -57,7 +61,10 @@ final class ApplicationTest extends TestCase
         $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
-        $vacancy = Vacancy::factory()->for($company)->create();
+        $category = Category::factory()->create();
+        $this->assertModelExists($category);
+
+        $vacancy = Vacancy::factory()->for($company)->for($category)->create();
         $this->assertModelExists($vacancy);
 
         $application = Application::factory()->for($this->apprentice)->for($vacancy)->create();
@@ -78,7 +85,10 @@ final class ApplicationTest extends TestCase
         $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
-        $vacancy = Vacancy::factory()->for($company)->create();
+        $category = Category::factory()->create();
+        $this->assertModelExists($category);
+
+        $vacancy = Vacancy::factory()->for($company)->for($category)->create();
         $this->assertModelExists($vacancy);
 
         $application = Application::factory()->for($this->apprentice)->for($vacancy)->create();

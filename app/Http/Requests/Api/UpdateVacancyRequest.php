@@ -16,6 +16,7 @@ final class UpdateVacancyRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'category' => ['required', 'string', 'exists:categories,code'],
             'title' => ['required', 'string', 'min:5', 'max:255'],
             'description' => ['required', 'string', 'min:50'],
             'location' => ['required', 'string', 'min:10'],

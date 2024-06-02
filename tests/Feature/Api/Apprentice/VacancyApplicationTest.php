@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Api\Apprentice;
 
 use App\Models\Application;
+use App\Models\Category;
 use App\Models\Company;
 use App\Models\Employer;
 use App\Models\User;
@@ -28,7 +29,10 @@ final class VacancyApplicationTest extends TestCase
         $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
-        $vacancy = Vacancy::factory()->for($company)->create();
+        $category = Category::factory()->create();
+        $this->assertModelExists($category);
+
+        $vacancy = Vacancy::factory()->for($company)->for($category)->create();
         $this->assertModelExists($vacancy);
 
         $response = $this->getJson(route('vacancies.applications.index', $vacancy));
@@ -45,7 +49,10 @@ final class VacancyApplicationTest extends TestCase
         $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
-        $vacancy = Vacancy::factory()->for($company)->create();
+        $category = Category::factory()->create();
+        $this->assertModelExists($category);
+
+        $vacancy = Vacancy::factory()->for($company)->for($category)->create();
         $this->assertModelExists($vacancy);
 
         $data = Application::factory()->withoutCode()->withoutSlug()->raw();
@@ -66,7 +73,10 @@ final class VacancyApplicationTest extends TestCase
         $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
-        $vacancy = Vacancy::factory()->for($company)->create();
+        $category = Category::factory()->create();
+        $this->assertModelExists($category);
+
+        $vacancy = Vacancy::factory()->for($company)->for($category)->create();
         $this->assertModelExists($vacancy);
 
         $application = Application::factory()->for($this->apprentice)->for($vacancy)->create();

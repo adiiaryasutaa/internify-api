@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Api\Apprentice;
 
+use App\Models\Category;
 use App\Models\Company;
 use App\Models\Employer;
 use App\Models\User;
 use App\Models\Vacancy;
+use Database\Seeders\CategorySeeder;
 use Database\Seeders\CompanySeeder;
 use Database\Seeders\EmployerSeeder;
 use Database\Seeders\VacancySeeder;
@@ -25,6 +27,7 @@ final class VacancyTest extends TestCase
         $this->seed([
             EmployerSeeder::class,
             CompanySeeder::class,
+            CategorySeeder::class,
             VacancySeeder::class,
         ]);
 
@@ -50,7 +53,10 @@ final class VacancyTest extends TestCase
         $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
-        $vacancy = Vacancy::factory()->for($company)->create();
+        $category = Category::factory()->create();
+        $this->assertModelExists($category);
+
+        $vacancy = Vacancy::factory()->for($company)->for($category)->create();
         $this->assertModelExists($vacancy);
 
         $response = $this->getJson(route('vacancies.show', $vacancy));
@@ -68,7 +74,10 @@ final class VacancyTest extends TestCase
         $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
-        $vacancy = Vacancy::factory()->for($company)->create();
+        $category = Category::factory()->create();
+        $this->assertModelExists($category);
+
+        $vacancy = Vacancy::factory()->for($company)->for($category)->create();
         $this->assertModelExists($vacancy);
 
         $response = $this->putJson(route('vacancies.update', $vacancy));
@@ -85,7 +94,10 @@ final class VacancyTest extends TestCase
         $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
-        $vacancy = Vacancy::factory()->for($company)->create();
+        $category = Category::factory()->create();
+        $this->assertModelExists($category);
+
+        $vacancy = Vacancy::factory()->for($company)->for($category)->create();
         $this->assertModelExists($vacancy);
 
         $response = $this->deleteJson(route('vacancies.destroy', $vacancy));

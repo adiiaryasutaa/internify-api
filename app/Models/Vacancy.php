@@ -21,6 +21,7 @@ final class Vacancy extends Model
         'code',
         'slug',
         'company_id',
+        'category_id',
         'title',
         'description',
         'location',
@@ -31,6 +32,11 @@ final class Vacancy extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
     }
 
     public function applications(): HasMany

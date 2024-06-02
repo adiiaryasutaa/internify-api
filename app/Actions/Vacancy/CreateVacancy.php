@@ -7,6 +7,7 @@ namespace App\Actions\Vacancy;
 use App\Actions\Vacancy\Contracts\CreatesVacancies;
 use App\Actions\Vacancy\Contracts\GeneratesVacanciesCodes;
 use App\Actions\Vacancy\Contracts\GeneratesVacanciesSlugs;
+use App\Models\Category;
 use App\Models\Company;
 use App\Models\Vacancy;
 use Illuminate\Support\Arr;
@@ -23,11 +24,12 @@ final class CreateVacancy implements CreatesVacancies
         $this->fill = array_diff($vacancy->getFillable(), ['code', 'slug', 'company_id', 'slug']);
     }
 
-    public function create(Company $company, array $inputs): Vacancy
+    public function create(Company $company, Category $category, array $inputs): Vacancy
     {
         $data = Arr::only($inputs, $this->fill);
         $data['code'] = $this->codesGenerator->generate();
         $data['slug'] = $this->slugGenerator->generate();
+        $data['category_id'] = $category->id;
 
         return $company->vacancies()->create($data);
     }

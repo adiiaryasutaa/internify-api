@@ -15,9 +15,10 @@ return new class () extends Migration {
             $table->string('slug');
             $table->string('code')->unique();
             $table->foreignIdFor(Company::class)
+                ->nullable()
                 ->constrained()
                 ->cascadeOnUpdate()
-                ->cascadeOnDelete();
+                ->nullOnDelete();
             $table->string('title');
             $table->longText('description');
             $table->string('location');

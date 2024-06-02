@@ -73,6 +73,20 @@ return [
             'failed' => 'Vacancy failed to delete',
         ],
     ],
+    'category' => [
+        'create' => [
+            'success' => 'Category created successfully',
+            'failed' => 'Category failed to create',
+        ],
+        'update' => [
+            'success' => 'Category updated successfully',
+            'failed' => 'Category failed to update',
+        ],
+        'delete' => [
+            'success' => 'Category deleted successfully',
+            'failed' => 'Category failed to delete',
+        ],
+    ],
     'application' => [
         'create' => [
             'success' => 'Application created successfully',

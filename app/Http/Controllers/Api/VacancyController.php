@@ -13,6 +13,7 @@ use App\Http\Requests\Api\StoreVacancyRequest;
 use App\Http\Requests\Api\UpdateVacancyRequest;
 use App\Http\Resources\VacancyCollection;
 use App\Http\Resources\VacancyResource;
+use App\Models\Category;
 use App\Models\Company;
 use App\Models\Vacancy;
 use Illuminate\Http\JsonResponse;
@@ -45,7 +46,9 @@ final class VacancyController extends Controller
             Role::EMPLOYER => $user->loadMissing('userable.company')->userable->company,
         };
 
-        $creator->create($company, $data);
+        $category = Category::whereCode($request['category'])->first(['id', 'slug']);
+
+        $creator->create($company, $category, $data);
 
         return response()->json([
             'message' => __('response.vacancy.create.success'),
@@ -62,7 +65,11 @@ final class VacancyController extends Controller
      */
     public function update(UpdatesVacancies $updater, UpdateVacancyRequest $request, Vacancy $vacancy): JsonResponse
     {
-        throw_unless($updater->update($vacancy, $request->validated()));
+        $data = $request->validated();
+
+        $data['category'] = Category::whereCode($request['category'])->first(['id', 'slug']);
+
+        throw_unless($updater->update($vacancy, $data));
 
         return response()->json([
             'message' => __('response.vacancy.update.success'),

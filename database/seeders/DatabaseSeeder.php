@@ -15,6 +15,7 @@ final class DatabaseSeeder extends Seeder
             EmployerSeeder::class,
             ApprenticeSeeder::class,
             CompanySeeder::class,
+            CategorySeeder::class,
             VacancySeeder::class,
             ApplicationSeeder::class,
             ReviewSeeder::class,
