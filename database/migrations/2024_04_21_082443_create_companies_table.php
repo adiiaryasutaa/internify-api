@@ -19,10 +19,10 @@ return new class () extends Migration {
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->string('name');
-            $table->text('description')->nullable();
             $table->text('address')->nullable();
             $table->string('phone')->nullable();
             $table->string('link')->nullable();
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }
