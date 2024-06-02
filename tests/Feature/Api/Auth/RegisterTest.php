@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Api\Admin\Auth;
+namespace Api\Auth;
 
 use App\Enums\Role;
 use Illuminate\Foundation\Testing\RefreshDatabase;
