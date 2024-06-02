@@ -51,12 +51,7 @@ final class ApplicationController extends Controller
         $user = $request->user();
         $request = $request->validated();
 
-        if ($user->role->isAdmin()) {
-            $apprentice = Apprentice::whereCode($request['apprentice'])->firstOrFail(['id', 'slug']);
-        } else {
-            $apprentice = $user->userable;
-        }
-
+        $apprentice = Apprentice::whereCode($request['apprentice'])->firstOrFail(['id', 'slug']);
         $vacancy = Vacancy::whereCode($request['vacancy'])->firstOrFail(['id', 'slug']);
 
         $creator->create($apprentice, $vacancy, $request);

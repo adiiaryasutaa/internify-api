@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api;
 use App\Actions\Vacancy\Contracts\CreatesVacancies;
 use App\Actions\Vacancy\Contracts\DeletesVacancies;
 use App\Actions\Vacancy\Contracts\UpdatesVacancies;
+use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreVacancyRequest;
 use App\Http\Requests\Api\UpdateVacancyRequest;
@@ -36,11 +37,15 @@ final class VacancyController extends Controller
 
     public function store(CreatesVacancies $creator, StoreVacancyRequest $request): JsonResponse
     {
-        $request = $request->validated();
+        $data = $request->validated();
+        $user = $request->user();
 
-        $company = Company::whereCode($request['company'])->firstOrFail(['id', 'slug']);
+        $company = match ($user->role) {
+            Role::ADMIN => Company::whereCode($request['company'])->first(['id', 'slug']),
+            Role::EMPLOYER => $user->loadMissing('userable.company')->userable->company,
+        };
 
-        $creator->create($company, $request);
+        $creator->create($company, $data);
 
         return response()->json([
             'message' => __('response.vacancy.create.success'),

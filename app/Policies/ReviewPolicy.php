@@ -49,7 +49,7 @@ final class ReviewPolicy
             $user = $user->loadMissing('userable');
             $review = $review->loadMissing('apprentice');
 
-            return $review->apprentice->is($user->userable) && $review->created_at?->lte(now()->addDay());
+            return $review->apprentice->is($user->userable) && $review->created_at->lte(now()->addDay());
         }
 
         return false;
@@ -57,7 +57,7 @@ final class ReviewPolicy
 
     public function delete(User $user, Review $review, ?Company $company = null): bool
     {
-        return $this->update($user, $review);
+        return $this->update($user, $review, $company);
     }
 
     public function restore(User $user, Review $review, ?Company $company = null): bool

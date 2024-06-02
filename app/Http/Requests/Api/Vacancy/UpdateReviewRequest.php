@@ -10,7 +10,7 @@ final class UpdateReviewRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('update', [$this->company, $this->review]);
+        return $this->user()->can('update', [$this->review, $this->company]);
     }
 
     public function rules(): array

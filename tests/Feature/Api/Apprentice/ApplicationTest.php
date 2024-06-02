@@ -2,35 +2,36 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Api\Employer;
+namespace Api\Apprentice;
 
 use App\Models\Application;
-use App\Models\Apprentice;
 use App\Models\Company;
+use App\Models\Employer;
 use App\Models\User;
 use App\Models\Vacancy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
-use Tests\Feature\Api\Employer\Traits\ActingAsEmployer;
+use Tests\Feature\Api\Apprentice\Traits\ActingAsApprentice;
 use Tests\TestCase;
 
 final class ApplicationTest extends TestCase
 {
-    use ActingAsEmployer;
+    use ActingAsApprentice;
     use RefreshDatabase;
 
     public function test_application_list(): void
     {
-        $company = Company::factory()->for($this->employer)->create();
+        $employer = Employer::factory()->has(User::factory()->asEmployer(), 'user')->create();
+        $this->assertModelExists($employer);
+        $this->assertModelExists($employer->user);
+
+        $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
-        $vacancy = Vacancy::factory()->for($company)->create();
-        $this->assertModelExists($vacancy);
+        $vacancies = Vacancy::factory()->count(20)->for($company)->create();
+        $vacancies->each(fn(Vacancy $vacancy) => $this->assertModelExists($vacancy));
 
-        $apprentices = Apprentice::factory()->count(20)->has(User::factory()->asApprentice(), 'user')->create();
-        $apprentices->each(fn(Apprentice $apprentice) => $this->assertModelExists($apprentice));
-
-        $applications = $apprentices->map(fn(Apprentice $apprentice) => Application::factory()->for($apprentice)->for($vacancy)->make());
+        $applications = $vacancies->map(fn(Vacancy $vacancy) => Application::factory()->for($this->apprentice)->for($vacancy)->make());
         Application::insert($applications->toArray());
         $applications->each(fn(Application $application) => $this->assertDatabaseHas('applications', $application->toArray()));
 
@@ -43,22 +44,23 @@ final class ApplicationTest extends TestCase
     public function test_create_application(): void
     {
         $this->assertThrows(function (): void {
-            $this->getJson(route('applications.store'));
+            $this->postJson(route('applications.store'));
         }, RouteNotFoundException::class);
     }
 
     public function test_show_application(): void
     {
-        $company = Company::factory()->for($this->employer)->create();
+        $employer = Employer::factory()->has(User::factory()->asEmployer(), 'user')->create();
+        $this->assertModelExists($employer);
+        $this->assertModelExists($employer->user);
+
+        $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
         $vacancy = Vacancy::factory()->for($company)->create();
         $this->assertModelExists($vacancy);
 
-        $apprentice = Apprentice::factory()->has(User::factory()->asApprentice(), 'user')->create();
-        $this->assertModelExists($apprentice);
-
-        $application = Application::factory()->for($apprentice)->for($vacancy)->create();
+        $application = Application::factory()->for($this->apprentice)->for($vacancy)->create();
         $this->assertModelExists($application);
 
         $response = $this->getJson(route('applications.show', $application));
@@ -69,22 +71,26 @@ final class ApplicationTest extends TestCase
 
     public function test_update_application(): void
     {
-        $company = Company::factory()->for($this->employer)->create();
+        $employer = Employer::factory()->has(User::factory()->asEmployer(), 'user')->create();
+        $this->assertModelExists($employer);
+        $this->assertModelExists($employer->user);
+
+        $company = Company::factory()->for($employer)->create();
         $this->assertModelExists($company);
 
         $vacancy = Vacancy::factory()->for($company)->create();
         $this->assertModelExists($vacancy);
 
-        $apprentice = Apprentice::factory()->has(User::factory()->asApprentice(), 'user')->create()->refresh();
-        $this->assertModelExists($apprentice);
-
-        $application = Application::factory()->for($apprentice)->for($vacancy)->create();
+        $application = Application::factory()->for($this->apprentice)->for($vacancy)->create();
         $this->assertModelExists($application);
 
-        $response = $this->putJson(route('applications.update', $application));
+        $data = Application::factory()->withoutCode()->withoutSlug()->raw();
 
-        $response->assertNotFound();
+        $response = $this->putJson(route('applications.update', $application), $data);
+
+        $response->assertOk();
         $response->assertJsonStructure(['message']);
+        $this->assertDatabaseHas('applications', array_merge($application->toArray(), $data));
     }
 
     public function test_delete_application(): void

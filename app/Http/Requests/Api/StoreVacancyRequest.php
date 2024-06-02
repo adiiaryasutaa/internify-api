@@ -6,6 +6,7 @@ namespace App\Http\Requests\Api;
 
 use App\Models\Vacancy;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 final class StoreVacancyRequest extends FormRequest
 {
@@ -17,7 +18,7 @@ final class StoreVacancyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'company' => ['required', 'string', 'exists:companies,code'],
+            'company' => [Rule::requiredIf($this->user()->role->isAdmin()), 'string', 'exists:companies,code'],
             'title' => ['required', 'string', 'min:5', 'max:255'],
             'description' => ['required', 'string', 'min:50'],
             'location' => ['required', 'string', 'min:10'],

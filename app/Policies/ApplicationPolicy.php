@@ -12,7 +12,11 @@ final class ApplicationPolicy
 {
     public function viewAny(User $user, ?Vacancy $vacancy = null): bool
     {
-        return true;
+        if ( ! $vacancy) {
+            return true;
+        }
+
+        return $user->role->is(['admin', 'employer']);
     }
 
     public function view(User $user, Application $application, ?Vacancy $vacancy = null): bool

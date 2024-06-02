@@ -22,7 +22,7 @@ final class CompanyReviewController extends Controller
 {
     public function __construct()
     {
-        $this->authorizeResource(Review::class, ['company', 'review']);
+        $this->authorizeResource(Review::class, ['review', 'company']);
     }
 
     /**
@@ -30,9 +30,9 @@ final class CompanyReviewController extends Controller
      *
      * @param Request $request
      * @param Company $company
-     * @return JsonResponse
+     * @return ReviewCollection
      */
-    public function index(Request $request, Company $company): JsonResponse
+    public function index(Request $request, Company $company): ReviewCollection
     {
         $perPage = $request->integer('per-page', null);
 
@@ -67,9 +67,9 @@ final class CompanyReviewController extends Controller
      *
      * @param Company $company
      * @param Review $review
-     * @return JsonResponse
+     * @return ReviewResource
      */
-    public function show(Company $company, Review $review): JsonResponse
+    public function show(Company $company, Review $review): ReviewResource
     {
         return ReviewResource::make($review);
     }

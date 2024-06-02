@@ -34,15 +34,16 @@ Route::middleware('auth:sanctum')->group(function (): void {
         Route::apiResource('reviews', ReviewController::class);
     });
 
-    Route::apiResource('companies', CompanyController::class)->only(['index', 'show', 'update']);
-    Route::apiResource('companies.vacancies', CompanyVacancyController::class);
-    Route::apiResource('companies.reviews', CompanyReviewController::class);
+    Route::apiResource('companies', CompanyController::class)->only(['index', 'show']);
+    Route::apiResource('companies.vacancies', CompanyVacancyController::class)->only(['index']);
+    Route::apiResource('companies.reviews', CompanyReviewController::class)->except(['show']);
 
+    Route::apiResource('vacancies', VacancyController::class);
     Route::apiResource('vacancies.applications', VacancyApplicationController::class)->except(['update', 'destroy']);
 
-    Route::apiResource('applications', ApplicationController::class)->except(['destroy']);
-    Route::apiResource('vacancies', VacancyController::class)->only(['index']);
-    Route::apiResource('reviews', ReviewController::class);
+    Route::apiResource('applications', ApplicationController::class)->except(['store', 'destroy']);
+
+    Route::apiResource('reviews', ReviewController::class)->only(['index']);
 });
 
 Route::fallback(RouteFallbackController::class);

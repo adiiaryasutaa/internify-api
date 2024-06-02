@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Api\Employer;
+namespace Api\Employer;
 
 use App\Models\Application;
 use App\Models\Apprentice;
@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Tests\Feature\Api\Employer\Traits\ActingAsEmployer;
 use Tests\TestCase;
 
-final class ApplicationTest extends TestCase
+final class VacancyApplicationTest extends TestCase
 {
     use ActingAsEmployer;
     use RefreshDatabase;
@@ -34,7 +34,7 @@ final class ApplicationTest extends TestCase
         Application::insert($applications->toArray());
         $applications->each(fn(Application $application) => $this->assertDatabaseHas('applications', $application->toArray()));
 
-        $response = $this->getJson(route('applications.index'));
+        $response = $this->getJson(route('vacancies.applications.index', $vacancy));
 
         $response->assertOk();
         $response->assertJsonCount(15, 'data');
@@ -42,9 +42,16 @@ final class ApplicationTest extends TestCase
 
     public function test_create_application(): void
     {
-        $this->assertThrows(function (): void {
-            $this->getJson(route('applications.store'));
-        }, RouteNotFoundException::class);
+        $company = Company::factory()->for($this->employer)->create();
+        $this->assertModelExists($company);
+
+        $vacancy = Vacancy::factory()->for($company)->create();
+        $this->assertModelExists($vacancy);
+
+        $response = $this->postJson(route('vacancies.applications.store', $vacancy));
+
+        $response->assertNotFound();
+        $response->assertJsonStructure(['message']);
     }
 
     public function test_show_application(): void
@@ -61,7 +68,7 @@ final class ApplicationTest extends TestCase
         $application = Application::factory()->for($apprentice)->for($vacancy)->create();
         $this->assertModelExists($application);
 
-        $response = $this->getJson(route('applications.show', $application));
+        $response = $this->getJson(route('vacancies.applications.show', [$vacancy, $application]));
 
         $response->assertOk();
         $response->assertJsonStructure(['data']);
@@ -69,22 +76,9 @@ final class ApplicationTest extends TestCase
 
     public function test_update_application(): void
     {
-        $company = Company::factory()->for($this->employer)->create();
-        $this->assertModelExists($company);
-
-        $vacancy = Vacancy::factory()->for($company)->create();
-        $this->assertModelExists($vacancy);
-
-        $apprentice = Apprentice::factory()->has(User::factory()->asApprentice(), 'user')->create()->refresh();
-        $this->assertModelExists($apprentice);
-
-        $application = Application::factory()->for($apprentice)->for($vacancy)->create();
-        $this->assertModelExists($application);
-
-        $response = $this->putJson(route('applications.update', $application));
-
-        $response->assertNotFound();
-        $response->assertJsonStructure(['message']);
+        $this->assertThrows(function (): void {
+            $this->putJson(route('vacancies.applications.update'));
+        }, RouteNotFoundException::class);
     }
 
     public function test_delete_application(): void
