@@ -15,14 +15,12 @@ use App\Http\Controllers\Api\CompanyVacancyController;
 use App\Http\Controllers\Api\EmployerController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\RouteFallbackController;
+use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\VacancyApplicationController;
 use App\Http\Controllers\Api\VacancyController;
 use App\Http\Middleware\Admin;
 use App\Http\Middleware\NotAdmin;
 use Illuminate\Support\Facades\Route;
-
-Route::post('/auth/login', LoginController::class)->name('login');
-Route::post('/auth/register', RegisterController::class)->name('register');
 
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/auth/logout', LogoutController::class)->name('logout');
@@ -56,5 +54,10 @@ Route::middleware('auth:sanctum')->group(function (): void {
         Route::apiResource('reviews', ReviewController::class)->only(['index']);
     });
 });
+
+Route::get('/search', SearchController::class)->name('search');
+
+Route::post('/auth/login', LoginController::class)->name('login');
+Route::post('/auth/register', RegisterController::class)->name('register');
 
 Route::fallback(RouteFallbackController::class);
