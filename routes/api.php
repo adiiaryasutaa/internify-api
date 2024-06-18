@@ -40,20 +40,19 @@ Route::middleware('auth:sanctum')->group(function (): void {
         });
 
     Route::middleware(NotAdmin::class)->group(function (): void {
-        Route::apiResource('companies', CompanyController::class)->only(['index', 'show']);
-        Route::apiResource('companies.vacancies', CompanyVacancyController::class)->only(['index']);
-        Route::apiResource('companies.reviews', CompanyReviewController::class)->except(['show']);
-
-        Route::apiResource('categories', CategoryController::class)->only(['index', 'show']);
-
-        Route::apiResource('vacancies', VacancyController::class);
+        Route::apiResource('companies.reviews', CompanyReviewController::class)->only(['store']);
         Route::apiResource('vacancies.applications', VacancyApplicationController::class)->except(['update', 'destroy']);
-
         Route::apiResource('applications', ApplicationController::class)->except(['store', 'destroy']);
-
         Route::apiResource('reviews', ReviewController::class)->only(['index']);
     });
 });
+
+Route::apiResource('companies', CompanyController::class)->only(['index', 'show']);
+Route::apiResource('companies.vacancies', CompanyVacancyController::class)->only(['index']);
+Route::apiResource('companies.reviews', CompanyReviewController::class)->except(['show']);
+
+Route::apiResource('categories', CategoryController::class)->only(['index', 'show']);
+Route::apiResource('vacancies', VacancyController::class);
 
 Route::get('/search', SearchController::class)->name('search');
 
